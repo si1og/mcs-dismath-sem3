@@ -111,6 +111,8 @@ void CLIUI::createUniverseMenu() {
     clearScreen();
     printHeader("СОЗДАНИЕ УНИВЕРСУМА");
 
+    bool isResetUniverse = false;
+
     if (hasUniverse()) {
         std::cout << "  Универсум уже существует!\n";
         std::cout << "Создать новый? (y/n): ";
@@ -119,28 +121,34 @@ void CLIUI::createUniverseMenu() {
         if (confirm != 'y' && confirm != 'Y') {
             return;
         }
-        universe.reset();
-        multisets.clear();
-        std::cout << " Старый универсум удалён\n\n";
+        isResetUniverse = true;
     }
 
     int depth, maxMult;
 
     std::cout << "Введите разрядность кода Грея (1-10): ";
-    if (!(std::cin >> depth) || depth < 1 || depth > 10) {
+    if (!(std::cin >> depth) || depth < 0 || depth > 10) {
         std::cout << "\n Некорректная разрядность!\n";
         pause();
         return;
     }
 
-    std::cout << "Введите максимальную кратность элементов: ";
-    if (!(std::cin >> maxMult) || maxMult < 0) {
-        std::cout << "\n Некорректная кратность!\n";
-        pause();
-        return;
+    if (depth > 0) {
+        std::cout << "Введите максимальную кратность элементов: ";
+        if (!(std::cin >> maxMult) || maxMult < 0) {
+            std::cout << "\n Некорректная кратность!\n";
+            pause();
+            return;
+        }
     }
 
     try {
+        if (isResetUniverse) {
+            universe.reset();
+            multisets.clear();
+            std::cout << " Старый универсум удалён\n\n";
+        }
+
         universe = std::make_unique<Universe>(depth, maxMult);
         universe->printTable();
         pause();
@@ -168,6 +176,15 @@ void CLIUI::createMultisetMenu() {
         return;
     }
 
+    auto ms = std::make_unique<Multiset>(*universe);
+
+    if (ms->getDepth() == 0) {
+        std::cout << "  Создано пустое мультимножество\n";
+        multisets[name] = std::move(ms);
+        pause();
+        return;
+    }
+
     std::cout << "\nВыберите способ заполнения:\n";
     std::cout << "  [1] Вручную\n";
     std::cout << "  [2] Автоматически (случайно)\n";
@@ -177,7 +194,6 @@ void CLIUI::createMultisetMenu() {
     std::cin >> choice;
 
     try {
-        auto ms = std::make_unique<Multiset>(*universe);
 
         if (choice == 1) {
             int size;

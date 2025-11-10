@@ -8,6 +8,7 @@
 #include <random>
 #include <algorithm>
 
+//TODO: пофиксить инициализацию с пустым универсумом
 class Universe {
     private:
         int depth;

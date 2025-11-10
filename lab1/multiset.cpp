@@ -158,6 +158,8 @@ Multiset Multiset::differenceWith(const Multiset& other) const {
 }
 
 Multiset Multiset::symmetricDifferenceWith(const Multiset& other) const {
+
+    //TODO: обосновать фотмулу
     Multiset diff1 = this->differenceWith(other);
     Multiset diff2 = other.differenceWith(*this);
     return diff1.unionWith(diff2);

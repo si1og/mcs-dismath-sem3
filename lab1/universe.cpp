@@ -1,12 +1,12 @@
 #include "universe.h"
 
-Universe::Universe() {};
+Universe::Universe() : depth(0), maxMultiplicity(0) {};
 
 Universe::Universe(int depth, int maxMultiplicity)
     : depth(depth), maxMultiplicity(maxMultiplicity) {
 
-    if (depth <= 0 || depth > 10) {
-        throw std::invalid_argument("Разрядность должна быть от 1 до 10");
+    if (depth < 0 || depth > 10) {
+        throw std::invalid_argument("Разрядность должна быть от 0 до 10");
     }
 
     if (maxMultiplicity < 0) {
@@ -103,14 +103,14 @@ void Universe::printTable() const {
     std::cout << "║                      УНИВЕРСУМ                         ║\n";
     std::cout << "╚════════════════════════════════════════════════════════╝\n\n";
 
+    if (maxMultiplicity == 0 || depth == 0) {
+        std::cout << "   Пустой универсум\n\n";
+        return;
+    }
+
     std::cout << "  Разрядность: " << depth << "\n";
     std::cout << "  Размер: " << size() << " элементов\n";
     std::cout << "  Максимальная кратность: " << maxMultiplicity << "\n\n";
-
-    if (maxMultiplicity == 0) {
-        std::cout << "   Пустой универсум (максимальная кратность = 0)\n\n";
-        return;
-    }
 
     std::cout << "  ┌────────┬──────────────┐\n";
     std::cout << "  │   №    │   Элемент    │\n";
