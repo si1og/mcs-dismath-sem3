@@ -5,12 +5,21 @@ Universe::Universe() {};
 Universe::Universe(int depth, int maxMultiplicity)
     : depth(depth), maxMultiplicity(maxMultiplicity) {
 
-    if (depth <= 0 || depth > 20) {
-        throw std::invalid_argument("Разрядность должна быть от 1 до 20");
+    if (depth <= 0 || depth > 10) {
+        throw std::invalid_argument("Разрядность должна быть от 1 до 10");
     }
 
-    if (maxMultiplicity <= 0) {
-        throw std::invalid_argument("Максимальная кратность должна быть положительной");
+    if (maxMultiplicity < 0) {
+        throw std::invalid_argument("Максимальная кратность должна быть неотрицательной");
+    }
+
+    if (depth == 0 || maxMultiplicity == 0) {
+        std::cout << "\n╔════════════════════════════════════════════════════════╗\n";
+        std::cout << "║              СОЗДАН ПУСТОЙ УНИВЕРСУМ                   ║\n";
+        std::cout << "╚════════════════════════════════════════════════════════╝\n";
+        std::cout << "   Разрядность: " << depth << "\n";
+        std::cout << "   Максимальная кратность: " << maxMultiplicity << "\n\n";
+        return;
     }
 
     elements = generateGrayCode(depth);
@@ -26,12 +35,12 @@ Universe::Universe(int depth, int maxMultiplicity)
 Universe::~Universe() {};
 
 std::vector<std::string> Universe::generateGrayCode(int n) {
-    if (n <= 0) {
-        throw std::invalid_argument("Разрядность должна быть положительной");
+    if (n < 0) {
+        throw std::invalid_argument("Разрядность должна быть неотрицательной");
     }
 
-    if (n > 20) {
-        throw std::invalid_argument("Разрядность слишком большая (максимум 20)");
+    if (n > 10) {
+        throw std::invalid_argument("Разрядность слишком большая (максимум 10)");
     }
 
     std::vector<std::string> result;
@@ -97,6 +106,11 @@ void Universe::printTable() const {
     std::cout << "  Разрядность: " << depth << "\n";
     std::cout << "  Размер: " << size() << " элементов\n";
     std::cout << "  Максимальная кратность: " << maxMultiplicity << "\n\n";
+
+    if (maxMultiplicity == 0) {
+        std::cout << "   Пустой универсум (максимальная кратность = 0)\n\n";
+        return;
+    }
 
     std::cout << "  ┌────────┬──────────────┐\n";
     std::cout << "  │   №    │   Элемент    │\n";

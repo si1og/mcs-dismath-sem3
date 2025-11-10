@@ -8,7 +8,7 @@ private:
 public:
     Multiset(const Universe& u);
 
-    void fillManual();
+    void fillManual(int size);
     void fillRandom();
 
     int getMultiplicity(const std::string& element) const;
@@ -69,9 +69,9 @@ public:
     */
     Multiset arithmeticDivision(const Multiset& other) const;
 
-    void print() const;
     void printTable() const;
 
+    bool isEmpty() const;
     bool operator!=(const Multiset& other) const;
     bool operator==(const Multiset& other) const;
 };

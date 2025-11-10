@@ -13,6 +13,9 @@
     "request": "launch",
     "adapter": "CodeLLDB",
     "args": [],
-    "cwd": "$ZED_WORKTREE_ROOT"
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "env": {
+      "TERM": "xterm-256color"
+    }
   }
 ]
