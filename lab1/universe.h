@@ -8,12 +8,14 @@
 #include <random>
 #include <algorithm>
 
-//TODO: пофиксить инициализацию с пустым универсумом
+//TODO: пофиксить инициализацию с 0 разрядностью
 class Universe {
     private:
         int depth;
         int maxMultiplicity;
         std::vector<std::string> elements;
+
+        static const int MAX_DEPTH = 20;
 
     public:
         Universe();
