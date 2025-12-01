@@ -565,7 +565,6 @@ auto CLIUI::measureTime(Func func) -> decltype(func()) {
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     double milliseconds = duration.count() / 1000.0;
 
-    // Предупреждение о долгой операции выводится всегда
     printSlowWarning(milliseconds);
 
     if (showTimings) {
@@ -584,7 +583,6 @@ void CLIUI::measureTimeVoid(Func func) {
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     double milliseconds = duration.count() / 1000.0;
 
-    // Предупреждение о долгой операции выводится всегда
     printSlowWarning(milliseconds);
 
     if (showTimings) {
@@ -600,7 +598,7 @@ void CLIUI::printSlowWarning(double milliseconds) {
 }
 
 void CLIUI::printExecutionTime(double milliseconds) {
-    std::cout << "\n  ⏱ Время выполнения: ";
+    std::cout << "\n  Время выполнения: ";
 
     if (milliseconds < 1.0) {
         std::cout << (milliseconds * 1000.0) << " мкс";

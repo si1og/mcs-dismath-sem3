@@ -106,8 +106,7 @@ void Universe::printTable() const {
     std::cout << "  Размер: " << size() << " элементов\n";
     std::cout << "  Максимальная кратность: " << maxMultiplicity << "\n\n";
 
-    // Для больших универсумов (>16 элементов) используем построчный вывод
-    if (size() > 16) {
+    if (depth > TABLE_MODE_DEPTH_TOGGLE) {
         printTablePaged();
     } else {
         printTableCompact();
@@ -131,25 +130,20 @@ void Universe::printTableCompact() const {
 }
 
 void Universe::printTablePaged() const {
-    const int pageSize = 20;
-    int totalPages = (size() + pageSize - 1) / pageSize;
-
     std::cout << "  Элементы универсума (" << size() << " шт.):\n\n";
 
-    // Выводим первые 10 элементов
     std::cout << "  Первые элементы:\n";
-    for (int i = 0; i < std::min(10, size()); ++i) {
+    for (int i = 0; i < std::min(PRINT_IN_TABLE_VIEW, size()); ++i) {
         std::cout << "    " << std::setw(6) << (i + 1) << ". " << elements[i] << "\n";
     }
 
-    if (size() > 20) {
-        std::cout << "\n    ... (" << (size() - 20) << " элементов пропущено) ...\n\n";
+    if (size() > PRINT_IN_TABLE_VIEW * 2) {
+        std::cout << "\n    ... (" << (size() - PRINT_IN_TABLE_VIEW * 2) << " элементов пропущено) ...\n\n";
     }
 
-    // Выводим последние 10 элементов
-    if (size() > 10) {
+    if (size() > PRINT_IN_TABLE_VIEW) {
         std::cout << "  Последние элементы:\n";
-        int start = std::max(10, size() - 10);
+        int start = std::max(PRINT_IN_TABLE_VIEW, size() - PRINT_IN_TABLE_VIEW);
         for (int i = start; i < size(); ++i) {
             std::cout << "    " << std::setw(6) << (i + 1) << ". " << elements[i] << "\n";
         }

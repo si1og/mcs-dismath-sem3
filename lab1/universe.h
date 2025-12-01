@@ -12,12 +12,14 @@
 
 class Universe {
     private:
-        int depth;
-        int maxMultiplicity;
         std::vector<std::string> elements;
 
         void printTableCompact() const;
         void printTablePaged() const;
+
+    protected:
+        int depth;
+        int maxMultiplicity;
 
     public:
         Universe();

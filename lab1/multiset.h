@@ -24,7 +24,10 @@ public:
     Multiset arithmeticProduct(const Multiset& other) const;
     Multiset arithmeticDivision(const Multiset& other) const;
 
+    int countNonZero() const;
     void printTable() const;
+    void printTableCompact() const;
+    void printTablePaged() const;
 
     bool isEmpty() const;
     bool operator!=(const Multiset& other) const;

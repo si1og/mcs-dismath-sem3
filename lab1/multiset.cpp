@@ -239,26 +239,77 @@ bool Multiset::operator!=(const Multiset& other) const {
     return !(*this == other);
 }
 
+int Multiset::countNonZero() const {
+    int count = 0;
+    for (const auto& [element, mult] : elements) {
+        if (mult > 0) ++count;
+    }
+    return count;
+}
+
 void Multiset::printTable() const {
     if (elements.empty() || isEmpty()) {
-        std::cout << "\n Пустое мультимножество\n\n";
+        std::cout << "   Пустое мультимножество\n\n";
         return;
     }
 
-    std::cout << "  ┌──────┬──────────────┬──────────────┐\n";
-    std::cout << "  │  №   │  Код Грея    │  Кратность   │\n";
-    std::cout << "  ├──────┼──────────────┼──────────────┤\n";
+    if (depth > 16) {
+        printTablePaged();
+    } else {
+        printTableCompact();
+    }
+}
+
+void Multiset::printTableCompact() const {
+    std::cout << "  ┌────────┬──────────────┬──────────────┐\n";
+    std::cout << "  │   №    │  Код Грея    │  Кратность   │\n";
+    std::cout << "  ├────────┼──────────────┼──────────────┤\n";
 
     int index = 1;
     for (const auto& [element, count] : elements) {
         if (count > 0) {
-            std::cout << "  │ " << std::setw(4) << index++ << " │ "
+            std::cout << "  │ " << std::setw(6) << index++ << " │ "
                       << std::setw(12) << element << " │ "
                       << std::setw(12) << count << " │\n";
         }
     }
 
-    std::cout << "  └──────┴──────────────┴──────────────┘\n\n";
+    std::cout << "  └────────┴──────────────┴──────────────┘\n\n";
+}
+
+void Multiset::printTablePaged() const {
+    std::vector<std::pair<std::string, int>> nonZeroElements;
+    for (const auto& [element, count] : elements) {
+        if (count > 0) {
+            nonZeroElements.emplace_back(element, count);
+        }
+    }
+
+    int total = static_cast<int>(nonZeroElements.size());
+    std::cout << "  Элементы мультимножества (" << total << " шт.):\n\n";
+
+    std::cout << "  Первые элементы:\n";
+    for (int i = 0; i < std::min(PRINT_IN_TABLE_VIEW, total); ++i) {
+        std::cout << "    " << std::setw(6) << (i + 1) << ". "
+                  << nonZeroElements[i].first << " (×"
+                  << nonZeroElements[i].second << ")\n";
+    }
+
+    if (total > PRINT_IN_TABLE_VIEW * 2) {
+        std::cout << "\n    ... (" << (total - PRINT_IN_TABLE_VIEW * 2) << " элементов пропущено) ...\n\n";
+    }
+
+    if (total > PRINT_IN_TABLE_VIEW) {
+        std::cout << "  Последние элементы:\n";
+        int start = std::max(PRINT_IN_TABLE_VIEW, total - PRINT_IN_TABLE_VIEW);
+        for (int i = start; i < total; ++i) {
+            std::cout << "    " << std::setw(6) << (i + 1) << ". "
+                      << nonZeroElements[i].first << " (×"
+                      << nonZeroElements[i].second << ")\n";
+        }
+    }
+
+    std::cout << "\n";
 }
 
 bool Multiset::isEmpty() const {
