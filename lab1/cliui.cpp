@@ -515,41 +515,41 @@ void CLIUI::showAllOperations() {
     printSeparator();
 
     std::cout << "\n1. Объединение (A ∪ B):\n";
-    A->unionWith(*B).printTable();
+    measureTime([&]{ return A->unionWith(*B); }).printTable();
 
     std::cout << "\n2. Пересечение (A ∩ B):\n";
-    A->intersectionWith(*B).printTable();
+    measureTime([&] { return A->intersectionWith(*B); }).printTable();
 
     std::cout << "\n3. Разность (A \\ B):\n";
-    A->differenceWith(*B).printTable();
+    measureTime([&] { return A->differenceWith(*B); }).printTable();
 
     std::cout << "\n4. Разность (B \\ A):\n";
-    B->differenceWith(*A).printTable();
+    measureTime([&] { return B->differenceWith(*A); }).printTable();
 
     std::cout << "\n5. Симметрическая разность (A △ B):\n";
-    A->symmetricDifferenceWith(*B).printTable();
+    measureTime([&] { return A->symmetricDifferenceWith(*B); }).printTable();
 
     std::cout << "\n6. Дополнение A':\n";
-    A->complement().printTable();
+    measureTime([&] { return A->complement(); }).printTable();
 
     std::cout << "\n7. Дополнение B':\n";
-    B->complement().printTable();
+    measureTime([&] { return B->complement(); }).printTable();
 
     printSeparator();
     std::cout << "Арифметические операции:\n";
     printSeparator();
 
     std::cout << "\n8. Сумма (A + B):\n";
-    A->arithmeticSum(*B).printTable();
+    measureTime([&] { return A->arithmeticSum(*B); }).printTable();
 
     std::cout << "\n9. Разность (A - B):\n";
-    A->arithmeticDifference(*B).printTable();
+    measureTime([&] { return A->arithmeticDifference(*B); }).printTable();
 
     std::cout << "\n10. Произведение (A * B):\n";
-    A->arithmeticProduct(*B).printTable();
+    measureTime([&] { return A->arithmeticProduct(*B); }).printTable();
 
     std::cout << "\n11. Деление (A / B):\n";
-    A->arithmeticDivision(*B).printTable();
+    measureTime([&] { return A->arithmeticDivision(*B); }).printTable();
 
     printSeparator();
 
