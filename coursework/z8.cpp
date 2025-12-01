@@ -2,16 +2,13 @@
 
 Z8::Z8() : additiveIdentity('a'), multiplicativeIdentity('b') {
     alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
-}
-
-Z8::Z8(int) : Z8() {
     initVariant();
 }
 
 Z8::~Z8() {}
 
 void Z8::initVariant() {
-    // вар 49: a+1=b, b+1=g, c+1=a, d+1=h, e+1=f, f+1=c, g+1=d, h+1=e
+    // a+1=b, b+1=g, c+1=a, d+1=h, e+1=f, f+1=c, g+1=d, h+1=e
     char rule[8] = {'b', 'g', 'a', 'h', 'f', 'c', 'd', 'e'};
 
     plusOneRule.clear();

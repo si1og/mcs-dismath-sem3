@@ -1,4 +1,5 @@
 #include "multiset.h"
+#include <cmath>
 
 Multiset::Multiset(const Universe& u) : Universe(u) {};
 
@@ -13,10 +14,8 @@ void Multiset::fillManual(int targetSize) {
     std::cout << "║          РУЧНОЕ ЗАПОЛНЕНИЕ МУЛЬТИМНОЖЕСТВА             ║\n";
     std::cout << "╚════════════════════════════════════════════════════════╝\n\n";
 
-    std::cout << "Доступные элементы универсума:\n";
-    printTable();
-
-    std::cout << "\nВведите " << targetSize << " уникальных элементов:\n\n";
+    std::cout << "Вводите код Грея длины: " << depth << "\n";
+    std::cout << "\nВведите " << targetSize << " элемента:\n\n";
 
     for (int i = 0; i < targetSize; ++i) {
         std::string element;
@@ -144,13 +143,14 @@ Multiset Multiset::intersectionWith(const Multiset& other) const {
 
 Multiset Multiset::differenceWith(const Multiset& other) const {
     Multiset result(*this);
+    // A(not B)
     return result.intersectionWith(other.complement());
 }
 
 Multiset Multiset::symmetricDifferenceWith(const Multiset& other) const {
-    // (A ∪ B) \ (A ∩ B) = (A ∪ B)((not A) ∪ (not B)) =
+    // (A △ B) = (A ∪ B) \ (A ∩ B) = (A ∪ B)((not A) ∪ (not B)) =
     // (A(not A) ∪ B(not A) ∪ A(not B) ∪ B(not B)) =
-    // B(not A) ∪ A(not B) = B \ A ∪ A \ B = A \ B ∪ B \ A
+    // B(not A) ∪ A(not B) = (B \ A) ∪ (A \ B) = (A \ B) ∪ (B \ A)
 
     Multiset diff1 = this->differenceWith(other);
     Multiset diff2 = other.differenceWith(*this);
@@ -251,12 +251,12 @@ int Multiset::countNonZero() const {
 }
 
 void Multiset::printTable() const {
-    if (elements.empty() || isEmpty()) {
+    if (isEmpty()) {
         std::cout << "   Пустое мультимножество\n\n";
         return;
     }
 
-    if (depth > 16) {
+    if (depth > TABLE_MODE_DEPTH_TOGGLE) {
         printTablePaged();
     } else {
         printTableCompact();
@@ -291,28 +291,38 @@ void Multiset::printTablePaged() const {
     int total = static_cast<int>(nonZeroElements.size());
     std::cout << "  Элементы мультимножества (" << total << " шт.):\n\n";
 
-    std::cout << "  Первые элементы:\n";
-    for (int i = 0; i < std::min(PRINT_IN_TABLE_VIEW, total); ++i) {
-        std::cout << "    " << std::setw(6) << (i + 1) << ". "
-                  << nonZeroElements[i].first << " (×"
-                  << nonZeroElements[i].second << ")\n";
-    }
-
-    if (total > PRINT_IN_TABLE_VIEW * 2) {
-        std::cout << "\n    ... (" << (total - PRINT_IN_TABLE_VIEW * 2) << " элементов пропущено) ...\n\n";
-    }
-
-    if (total > PRINT_IN_TABLE_VIEW) {
-        std::cout << "  Последние элементы:\n";
-        int start = std::max(PRINT_IN_TABLE_VIEW, total - PRINT_IN_TABLE_VIEW);
-        for (int i = start; i < total; ++i) {
+    if (total > pow(2, TABLE_MODE_DEPTH_TOGGLE)) {
+        std::cout << "  Первые элементы:\n";
+        for (int i = 0; i < std::min(PRINT_IN_TABLE_VIEW, total); ++i) {
             std::cout << "    " << std::setw(6) << (i + 1) << ". "
-                      << nonZeroElements[i].first << " (×"
-                      << nonZeroElements[i].second << ")\n";
+                    << nonZeroElements[i].first << " (×"
+                    << nonZeroElements[i].second << ")\n";
         }
+
+        if (total > PRINT_IN_TABLE_VIEW * 2) {
+            std::cout << "\n    ... (" << (total - PRINT_IN_TABLE_VIEW * 2) << " элементов пропущено) ...\n\n";
+        }
+
+        if (total > PRINT_IN_TABLE_VIEW) {
+            std::cout << "  Последние элементы:\n";
+            int start = std::max(PRINT_IN_TABLE_VIEW, total - PRINT_IN_TABLE_VIEW);
+            for (int i = start; i < total; ++i) {
+                std::cout << "    " << std::setw(6) << (i + 1) << ". "
+                        << nonZeroElements[i].first << " (×"
+                        << nonZeroElements[i].second << ")\n";
+            }
+        }
+
+        std::cout << "\n";
+    } else {
+        for (int i = 0; i < total; ++i) {
+            std::cout << "    " << std::setw(6) << (i + 1) << ". "
+                    << nonZeroElements[i].first << " (×"
+                    << nonZeroElements[i].second << ")\n";
+        }
+        std::cout << "\n";
     }
 
-    std::cout << "\n";
 }
 
 bool Multiset::isEmpty() const {

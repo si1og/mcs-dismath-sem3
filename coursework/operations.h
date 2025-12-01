@@ -23,7 +23,7 @@ struct OperationResult {
 };
 
 class Operations : public Z8 {
-private:
+public:
     std::string trimLeadingZeros(const std::string& num) const;
     bool isZeroNumber(const std::string& num) const;
     int compareAbs(const std::string& a, const std::string& b) const;

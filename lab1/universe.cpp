@@ -9,13 +9,12 @@ Universe::Universe(int depth, int maxMultiplicity)
         throw std::invalid_argument("Разрядность должна быть неотрицательной");
     }
 
-    if (depth > RECOMMENDED_MAX_DEPTH) {
+    if (depth > RECOMMENDED_MAX_DEPTH && maxMultiplicity > 0) {
         std::cout << "\n  Предупреждение: разрядность " << depth
                   << " превышает рекомендуемое значение " << RECOMMENDED_MAX_DEPTH << "\n";
         std::cout << "  Это может привести к большому потреблению памяти и времени выполнения.\n\n";
     }
 
-    // При нулевой разрядности кратность тоже 0
     if (depth == 0) {
         this->maxMultiplicity = 0;
     }
@@ -59,7 +58,7 @@ std::vector<std::string> Universe::generateGrayCode(int n) {
     int total = 1 << n; // 2^n элементов
 
     for (int i = 0; i < total; ++i) {
-        // Формула кода Грея: gray = i XOR (i >> 1)
+        // формула кода Грея: gray = i XOR (i >> 1)
         int gray = i ^ (i >> 1);
 
         std::string binary;

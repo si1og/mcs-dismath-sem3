@@ -15,16 +15,16 @@ std::string Operations::trimLeadingZeros(const std::string& num) const {
     return num.substr(start);
 }
 
-bool Operations::isZeroNumber(const std::string& num) const {
-    std::string n = abs(num);
-    n = trimLeadingZeros(n);
-    return n.length() == 1 && n[0] == getZero();
-}
-
 std::string Operations::abs(const std::string& num) const {
     if (num.empty()) return std::string(1, getZero());
     if (num[0] == '-') return num.substr(1);
     return num;
+}
+
+bool Operations::isZeroNumber(const std::string& num) const {
+    std::string n = abs(num);
+    n = trimLeadingZeros(n);
+    return n.length() == 1 && n[0] == getZero();
 }
 
 bool Operations::isNegative(const std::string& num) const {
@@ -41,6 +41,7 @@ std::string Operations::negate(const std::string& num) const {
     }
 }
 
+// пользуемся, чтобы привести числа к «стандартному» виду
 std::string Operations::normalize(const std::string& num) const {
     if (num.empty()) return std::string(1, getZero());
 
@@ -73,6 +74,7 @@ bool Operations::isValidNumber(const std::string& num) const {
 }
 
 int Operations::compareAbs(const std::string& a, const std::string& b) const {
+    // нормализуем по модулю
     std::string normA = trimLeadingZeros(abs(a));
     std::string normB = trimLeadingZeros(abs(b));
 
@@ -94,6 +96,11 @@ int Operations::compareAbs(const std::string& a, const std::string& b) const {
             cur = next(cur);
         }
 
+        // выше запоминаем последние позиции, которые совпали с cur:
+        // cur двигается по цепочке a -> ...
+        //
+        // => у кого позиция больше, тот больше
+
         return posA > posB ? 1 : -1;
     }
 
@@ -109,11 +116,17 @@ std::string Operations::getMaxNegative() const {
     return "-" + getMaxPositive();
 }
 
+// «база», на которой строим сложение
 std::string Operations::increment(const std::string& num) const {
     if (num.empty()) return std::string(1, getOne());
 
     std::string result = num;
 
+    // берем последнюю цифру:
+    // 1) берем след. цифру по цепочке от последней цифры (п. a -> b)
+    // 2) записываем обновленную цифру в result на позицию последней цифры
+    // а) если обновлённая цифра 0 - повторяем для предпоследней цифры ... и т.д.
+    // б) если не 0 - возвращаем result
     for (int i = static_cast<int>(result.length()) - 1; i >= 0; --i) {
         char nextChar = next(result[i]);
         result[i] = nextChar;
@@ -123,9 +136,12 @@ std::string Operations::increment(const std::string& num) const {
         }
     }
 
+    // если все цифры в результате операции 0, возвращаем 1 + нули
     return std::string(1, getOne()) + result;
 }
 
+
+// ан-но, как с increment, но с prev
 std::string Operations::decrement(const std::string& num) const {
     if (isZeroNumber(num)) {
         return "-" + std::string(1, getOne());
@@ -144,8 +160,6 @@ std::string Operations::decrement(const std::string& num) const {
     return trimLeadingZeros(result);
 }
 
-// ============== Сложение положительных чисел ==============
-
 std::string Operations::addPositive(const std::string& a, const std::string& b) const {
     std::string numA = trimLeadingZeros(a);
     std::string numB = trimLeadingZeros(b);
@@ -160,7 +174,6 @@ std::string Operations::addPositive(const std::string& a, const std::string& b) 
     for (int i = static_cast<int>(maxLen) - 1; i >= 0; --i) {
         char sum = numA[i];
 
-        // Прибавляем b[i]
         char counter = numB[i];
         while (counter != getZero()) {
             char nextSum = next(sum);
@@ -171,7 +184,6 @@ std::string Operations::addPositive(const std::string& a, const std::string& b) 
             counter = prev(counter);
         }
 
-        // Прибавляем перенос
         char carryCounter = carry[carry.length() - 1];
         carry = (carry.length() > 1) ? carry.substr(0, carry.length() - 1) : std::string(1, getZero());
 

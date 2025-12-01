@@ -17,7 +17,7 @@ void CLIUI::pause() {
 
 void CLIUI::printHeader(const std::string& title) {
     std::cout << "\n╔════════════════════════════════════════════════════════╗\n";
-    std::cout << "║ " << std::left << std::setw(54) << title << " ║\n";
+    std::cout << "║ " << std::left << title <<  "\n";
     std::cout << "╚════════════════════════════════════════════════════════╝\n\n";
 }
 
@@ -69,6 +69,8 @@ void CLIUI::showMainMenu() {
 
     std::cout << "  Алфавит: {a, b, c, d, e, f, g, h}\n";
     std::cout << "  Ноль: " << ops->getZero() << ", Единица: " << ops->getOne() << "\n\n";
+
+    std::cout << ops->increment("bb") << "\n";
 
     printSeparator();
     std::cout << "Главное меню:\n";
@@ -260,7 +262,6 @@ void CLIUI::calculatorMode() {
             break;
         }
 
-        // Парсим ввод
         std::string a, op, b;
         size_t pos1 = 0;
 
@@ -272,7 +273,7 @@ void CLIUI::calculatorMode() {
         }
 
         if (pos1 == std::string::npos) {
-            std::cout << "  ⚠ Неверный формат! Используйте: число операция число\n";
+            std::cout << "  Неверный формат! Используйте: число операция число\n";
             continue;
         }
 
@@ -288,12 +289,12 @@ void CLIUI::calculatorMode() {
         while (!b.empty() && b.back() == ' ') b.pop_back();
 
         if (!ops->isValidNumber(a)) {
-            std::cout << "  ⚠ Некорректное первое число: " << a << "\n";
+            std::cout << "  Некорректное первое число: " << a << "\n";
             continue;
         }
 
         if (!ops->isValidNumber(b)) {
-            std::cout << "  ⚠ Некорректное второе число: " << b << "\n";
+            std::cout << "  Некорректное второе число: " << b << "\n";
             continue;
         }
 
@@ -313,7 +314,7 @@ void CLIUI::calculatorMode() {
             DivisionResult result = ops->divide(a, b);
             ops->printDivisionResult(a, b, result);
         } else {
-            std::cout << "  ⚠ Неизвестная операция: " << op << "\n";
+            std::cout << "  Неизвестная операция: " << op << "\n";
         }
     }
 }

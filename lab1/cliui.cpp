@@ -188,7 +188,7 @@ void CLIUI::createMultisetMenu() {
 
     auto ms = std::make_unique<Multiset>(*universe);
 
-    if (ms->getDepth() == 0) {
+    if (ms->getDepth() == 0 || ms->getMaxMultiplicity() == 0) {
         std::cout << "  Создано пустое мультимножество\n";
         multisets[name] = std::move(ms);
         pause();
