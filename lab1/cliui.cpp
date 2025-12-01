@@ -1,4 +1,6 @@
 #include "cliui.h"
+#include "universe.h"
+#include <string>
 
 
 CLIUI::CLIUI() {}
@@ -6,11 +8,7 @@ CLIUI::CLIUI() {}
 CLIUI::~CLIUI() {}
 
 void CLIUI::clearScreen() {
-    #ifdef _WIN32
-        system("cls");
-    #else
-        system("clear");
-    #endif
+    system("clear");
 }
 
 void CLIUI::pause() {
@@ -76,6 +74,8 @@ void CLIUI::showMainMenu() {
     std::cout << "  [5] Арифметические операции\n";
     std::cout << "  [6] Сравнить мультимножества\n";
     std::cout << "  [7] Показать все операции (сводка)\n";
+    std::cout << "  [8] " << (showTimings ? "Скрыть" : "Показать")
+                  << " время выполнения операций\n";
     std::cout << "  [0] Выход\n";
 
     printSeparator();
@@ -98,6 +98,11 @@ void CLIUI::showMainMenu() {
         case 5: arithmeticOperationsMenu(); break;
         case 6: compareMultisetsMenu(); break;
         case 7: showAllOperations(); break;
+        case 8:
+            showTimings = !showTimings;
+            std::cout << "\n  Отображение времени: " << (showTimings ? "включено" : "выключено") << "\n";
+            pause();
+            break;
         case 0:
             std::cout << "\n До свидания!\n";
             exit(0);
@@ -126,8 +131,8 @@ void CLIUI::createUniverseMenu() {
 
     int depth, maxMult;
 
-    std::cout << "Введите разрядность кода Грея (1-10): ";
-    if (!(std::cin >> depth) || depth < 0 || depth > 10) {
+    std::cout << "Введите разрядность кода Грея (рекомендуется до " + std::to_string(RECOMMENDED_MAX_DEPTH) + "): ";
+    if (!(std::cin >> depth) || depth < 0) {
         std::cout << "\n Некорректная разрядность!\n";
         pause();
         return;
@@ -140,6 +145,8 @@ void CLIUI::createUniverseMenu() {
             pause();
             return;
         }
+    } else {
+        maxMult = 0; // При нулевой разрядности кратность тоже 0
     }
 
     try {
@@ -149,7 +156,10 @@ void CLIUI::createUniverseMenu() {
             std::cout << " Старый универсум удалён\n\n";
         }
 
-        universe = std::make_unique<Universe>(depth, maxMult);
+        measureTimeVoid([&]() {
+            universe = std::make_unique<Universe>(depth, maxMult);
+        });
+
         universe->printTable();
         pause();
     } catch (const std::exception& e) {
@@ -201,8 +211,11 @@ void CLIUI::createMultisetMenu() {
                       << universe->size() << "): ";
             std::cin >> size;
             ms->fillManual(size);
+
         } else if (choice == 2) {
-            ms->fillRandom();
+            measureTimeVoid([&]() {
+                ms->fillRandom();
+            });
         } else {
             std::cout << " Неверный выбор!\n";
             pause();
@@ -345,7 +358,9 @@ void CLIUI::performBinaryOperation(
     std::cout << "\nB = \n";
     B->printTable();
 
-    Multiset result = (A->*operation)(*B);
+    Multiset result = measureTime([&]() {
+        return (A->*operation)(*B);
+    });
 
     std::cout << "\nРезультат:\n";
     result.printTable();
@@ -396,7 +411,9 @@ void CLIUI::performUnaryOperation(
     std::cout << "A = ";
     A->printTable();
 
-    Multiset result = (A->*operation)();
+    Multiset result = measureTime([&]() {
+        return (A->*operation)();
+    });
 
     std::cout << "\nРезультат:\n";
     result.printTable();
@@ -537,4 +554,61 @@ void CLIUI::showAllOperations() {
     printSeparator();
 
     pause();
+}
+
+template<typename Func>
+auto CLIUI::measureTime(Func func) -> decltype(func()) {
+    auto start = std::chrono::high_resolution_clock::now();
+    auto result = func();
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    double milliseconds = duration.count() / 1000.0;
+
+    // Предупреждение о долгой операции выводится всегда
+    printSlowWarning(milliseconds);
+
+    if (showTimings) {
+        printExecutionTime(milliseconds);
+    }
+
+    return result;
+}
+
+template<typename Func>
+void CLIUI::measureTimeVoid(Func func) {
+    auto start = std::chrono::high_resolution_clock::now();
+    func();
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    double milliseconds = duration.count() / 1000.0;
+
+    // Предупреждение о долгой операции выводится всегда
+    printSlowWarning(milliseconds);
+
+    if (showTimings) {
+        printExecutionTime(milliseconds);
+    }
+}
+
+void CLIUI::printSlowWarning(double milliseconds) {
+    if (milliseconds >= 1000.0) {
+        std::cout << "\n  ⚠️  ПРЕДУПРЕЖДЕНИЕ: операция заняла более 1 секунды ("
+                  << std::fixed << std::setprecision(2) << (milliseconds / 1000.0) << " с)\n";
+    }
+}
+
+void CLIUI::printExecutionTime(double milliseconds) {
+    std::cout << "\n  ⏱ Время выполнения: ";
+
+    if (milliseconds < 1.0) {
+        std::cout << (milliseconds * 1000.0) << " мкс";
+    } else if (milliseconds < 1000.0) {
+        std::cout << std::fixed << std::setprecision(3) << milliseconds << " мс";
+    } else {
+        std::cout << std::fixed << std::setprecision(3) << (milliseconds / 1000.0) << " с";
+    }
+
+    std::cout << "\n";
 }

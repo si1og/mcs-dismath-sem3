@@ -8,14 +8,16 @@
 #include <random>
 #include <algorithm>
 
-//TODO: пофиксить инициализацию с 0 разрядностью
+#include "constants.h"
+
 class Universe {
     private:
         int depth;
         int maxMultiplicity;
         std::vector<std::string> elements;
 
-        static const int MAX_DEPTH = 20;
+        void printTableCompact() const;
+        void printTablePaged() const;
 
     public:
         Universe();

@@ -7,11 +7,13 @@
 #include <memory>
 #include <iostream>
 #include <limits>
+#include <chrono>
 
 class CLIUI {
 private:
     std::unique_ptr<Universe> universe;
     std::map<std::string, std::unique_ptr<Multiset>> multisets;
+    bool showTimings = false;
 
     void clearScreen();
     void pause();
@@ -39,6 +41,15 @@ private:
     );
 
     void showAllOperations();
+
+    template<typename Func>
+    auto measureTime(Func func) -> decltype(func());
+
+    template<typename Func>
+    void measureTimeVoid(Func func);
+
+    void printExecutionTime(double milliseconds);
+    void printSlowWarning(double milliseconds);
 
 public:
     CLIUI();

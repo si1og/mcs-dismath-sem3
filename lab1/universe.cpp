@@ -5,20 +5,31 @@ Universe::Universe() : depth(0), maxMultiplicity(0) {};
 Universe::Universe(int depth, int maxMultiplicity)
     : depth(depth), maxMultiplicity(maxMultiplicity) {
 
-    if (depth < 0 || depth > 10) {
-        throw std::invalid_argument("Разрядность должна быть от 0 до 10");
+    if (depth < 0) {
+        throw std::invalid_argument("Разрядность должна быть неотрицательной");
     }
 
-    if (maxMultiplicity < 0) {
+    if (depth > RECOMMENDED_MAX_DEPTH) {
+        std::cout << "\n  Предупреждение: разрядность " << depth
+                  << " превышает рекомендуемое значение " << RECOMMENDED_MAX_DEPTH << "\n";
+        std::cout << "  Это может привести к большому потреблению памяти и времени выполнения.\n\n";
+    }
+
+    // При нулевой разрядности кратность тоже 0
+    if (depth == 0) {
+        this->maxMultiplicity = 0;
+    }
+
+    if (this->maxMultiplicity < 0) {
         throw std::invalid_argument("Максимальная кратность должна быть неотрицательной");
     }
 
-    if (depth == 0 || maxMultiplicity == 0) {
+    if (depth == 0 || this->maxMultiplicity == 0) {
         std::cout << "\n╔════════════════════════════════════════════════════════╗\n";
         std::cout << "║              СОЗДАН ПУСТОЙ УНИВЕРСУМ                   ║\n";
         std::cout << "╚════════════════════════════════════════════════════════╝\n";
         std::cout << "   Разрядность: " << depth << "\n";
-        std::cout << "   Максимальная кратность: " << maxMultiplicity << "\n\n";
+        std::cout << "   Максимальная кратность: " << this->maxMultiplicity << "\n\n";
         return;
     }
 
@@ -29,7 +40,7 @@ Universe::Universe(int depth, int maxMultiplicity)
     std::cout << "╚════════════════════════════════════════════════════════╝\n";
     std::cout << "  Размер: " << elements.size() << " элементов (2^" << depth << ")\n";
     std::cout << "  Разрядность кода Грея: " << depth << "\n";
-    std::cout << "  Максимальная кратность: " << maxMultiplicity << "\n\n";
+    std::cout << "  Максимальная кратность: " << this->maxMultiplicity << "\n\n";
 }
 
 Universe::~Universe() {};
@@ -39,11 +50,12 @@ std::vector<std::string> Universe::generateGrayCode(int n) {
         throw std::invalid_argument("Разрядность должна быть неотрицательной");
     }
 
-    if (n > 10) {
-        throw std::invalid_argument("Разрядность слишком большая (максимум 10)");
+    std::vector<std::string> result;
+
+    if (n > 30) {
+        throw std::invalid_argument("Разрядность слишком большая (максимум 30 для безопасной работы с int)");
     }
 
-    std::vector<std::string> result;
     int total = 1 << n; // 2^n элементов
 
     for (int i = 0; i < total; ++i) {
@@ -80,24 +92,6 @@ int Universe::size() const {
     return static_cast<int>(elements.size());
 }
 
-void Universe::print() const {
-    std::cout << "U = { ";
-
-    const int maxDisplay = 8; // Показываем максимум 8 элементов
-
-    for (int i = 0; i < std::min(maxDisplay, size()); ++i) {
-        if (i > 0) std::cout << ", ";
-        std::cout << elements[i];
-    }
-
-    if (size() > maxDisplay) {
-        std::cout << ", ... (" << (size() - maxDisplay) << " ещё)";
-    }
-
-    std::cout << " }\n";
-    std::cout << "Максимальная кратность для всех элементов: " << maxMultiplicity << "\n";
-}
-
 void Universe::printTable() const {
     std::cout << "\n╔════════════════════════════════════════════════════════╗\n";
     std::cout << "║                      УНИВЕРСУМ                         ║\n";
@@ -112,6 +106,18 @@ void Universe::printTable() const {
     std::cout << "  Размер: " << size() << " элементов\n";
     std::cout << "  Максимальная кратность: " << maxMultiplicity << "\n\n";
 
+    // Для больших универсумов (>16 элементов) используем построчный вывод
+    if (size() > 16) {
+        printTablePaged();
+    } else {
+        printTableCompact();
+    }
+
+    std::cout << "  Все элементы имеют максимальную кратность: "
+              << maxMultiplicity << "\n\n";
+}
+
+void Universe::printTableCompact() const {
     std::cout << "  ┌────────┬──────────────┐\n";
     std::cout << "  │   №    │   Элемент    │\n";
     std::cout << "  ├────────┼──────────────┤\n";
@@ -122,6 +128,32 @@ void Universe::printTable() const {
     }
 
     std::cout << "  └────────┴──────────────┘\n\n";
-    std::cout << "  Все элементы имеют максимальную кратность: "
-              << maxMultiplicity << "\n\n";
+}
+
+void Universe::printTablePaged() const {
+    const int pageSize = 20;
+    int totalPages = (size() + pageSize - 1) / pageSize;
+
+    std::cout << "  Элементы универсума (" << size() << " шт.):\n\n";
+
+    // Выводим первые 10 элементов
+    std::cout << "  Первые элементы:\n";
+    for (int i = 0; i < std::min(10, size()); ++i) {
+        std::cout << "    " << std::setw(6) << (i + 1) << ". " << elements[i] << "\n";
+    }
+
+    if (size() > 20) {
+        std::cout << "\n    ... (" << (size() - 20) << " элементов пропущено) ...\n\n";
+    }
+
+    // Выводим последние 10 элементов
+    if (size() > 10) {
+        std::cout << "  Последние элементы:\n";
+        int start = std::max(10, size() - 10);
+        for (int i = start; i < size(); ++i) {
+            std::cout << "    " << std::setw(6) << (i + 1) << ". " << elements[i] << "\n";
+        }
+    }
+
+    std::cout << "\n";
 }
