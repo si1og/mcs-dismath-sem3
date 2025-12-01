@@ -144,22 +144,14 @@ Multiset Multiset::intersectionWith(const Multiset& other) const {
 
 Multiset Multiset::differenceWith(const Multiset& other) const {
     Multiset result(*this);
-    result.elements.clear();
-
-    for (const auto& element : this->getElements()) {
-        int countA = getMultiplicity(element);
-        int countB = other.getMultiplicity(element);
-
-        int diff = std::max(countA - countB, 0);
-        result.elements[element] = diff;
-    }
-
-    return result;
+    return result.intersectionWith(other.complement());
 }
 
 Multiset Multiset::symmetricDifferenceWith(const Multiset& other) const {
+    // (A ∪ B) \ (A ∩ B) = (A ∪ B)((not A) ∪ (not B)) =
+    // (A(not A) ∪ B(not A) ∪ A(not B) ∪ B(not B)) =
+    // B(not A) ∪ A(not B) = B \ A ∪ A \ B = A \ B ∪ B \ A
 
-    //TODO: обосновать фотмулу
     Multiset diff1 = this->differenceWith(other);
     Multiset diff2 = other.differenceWith(*this);
     return diff1.unionWith(diff2);
@@ -192,7 +184,18 @@ Multiset Multiset::arithmeticSum(const Multiset& other) const {
 }
 
 Multiset Multiset::arithmeticDifference(const Multiset& other) const {
-    return differenceWith(other);
+    Multiset result(*this);
+    result.elements.clear();
+
+    for (const auto& element : this->getElements()) {
+        int countA = getMultiplicity(element);
+        int countB = other.getMultiplicity(element);
+
+        int diff = std::max(countA - countB, 0);
+        result.elements[element] = diff;
+    }
+
+    return result;
 }
 
 Multiset Multiset::arithmeticProduct(const Multiset& other) const {
