@@ -1,0 +1,187 @@
+\section*{Приложение Е. Задание 2. Реализация функций работы с псевдографическим интерфейсом и базой данных}
+\addcontentsline{toc}{section}{Приложение Е. Задание 2. Реализация функций работы с псевдографическим интерфейсом и базой данных}
+
+\begin{lstlisting}[language=C,numbers=left]
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ncurses.h>
+#include <zlib.h>
+#include "app.h"
+
+void input_znak(ZNAK *z) {
+  echo();
+  while (1) {
+    mvprintw(2, 2, "Фамилия и инициалы: ");
+    getnstr(z->name, sizeof(z->name) - 1);
+    if (strlen(z->name) > 0) break;
+    error_msg("Фамилия и инициалы не могут быть пустыми.");
+  }
+
+  while (1) {
+    mvprintw(3, 2, "Знак зодиака: ");
+    getnstr(z->zodiac, sizeof(z->zodiac) - 1);
+    if (strlen(z->zodiac) > 0) break;
+    error_msg("Знак зодиака не может быть пустым.");
+  }
+
+  while (1) {
+    int birth_year = 0;
+    mvprintw(4, 2, "Год рождения: ");
+    scanw("%d", &birth_year);
+    if (birth_year >= 1899 && birth_year <= 2025) {
+      z->birth_year = birth_year;
+      break;
+    } else {
+      error_msg("Год рождения должен быть в диапазоне 1899-2025.");
+    }
+  }
+  noecho();
+}
+
+void save_db(ZNAK_DB_HEADER *header, ZNAK *arr, int count) {
+  FILE *file = fopen(DB_FILENAME, "wb");
+  if (!file) {
+    perror("Ошибка создания файла");
+    return;
+  }
+
+  header->count = count;
+  header->transaction_id++;
+  header->checksum = crc32(0L, Z_NULL, 0);
+  header->checksum = crc32(header->checksum, (const Bytef*)arr, sizeof(ZNAK) * count);
+
+  fwrite(header, sizeof(ZNAK_DB_HEADER), 1, file);
+  fwrite(arr, sizeof(ZNAK), count, file);
+  fclose(file);
+}
+
+void find_by_year_and_zodiac(ZNAK_DB_HEADER *header, 
+  ZNAK *arr, int count, const char *zodiac, int year) {
+  save_db(header, arr, count);
+
+  int found = 0;
+
+  ZNAK found_arr[count];
+  for (int i = 0; i < count; ++i) {
+    if (arr[i].birth_year == year && \
+      strcmp(arr[i].zodiac, zodiac) == 0) {
+      found_arr[found++] = arr[i];
+    }
+  }
+  
+  clear();
+  mvprintw(1, 2, "Результаты поиска по знаку \"%s\" и году %d:",
+          zodiac, year);
+
+  if (found) {
+    db_print_interface(header, found_arr, found);
+  } else {
+    mvprintw(5, 4, "Совпадений не найдено.");
+    mvprintw(20, 2, "Нажмите любую клавишу для выхода...");
+    getch();
+  }
+}
+
+void add_record(ZNAK_DB_HEADER *header, ZNAK *arr, int *count) {
+  clear();
+  mvprintw(1, 2, "Добавление новой записи:");
+  input_znak(&arr[*count]);
+  (*count)++;
+  save_db(header, arr, *count);
+}
+
+void search_records(ZNAK_DB_HEADER *header, ZNAK *arr, int count) {
+  char search_zodiac[ZODIAC_LEN];
+  int search_year;
+
+  clear();
+  mvprintw(1, 2, "Введите знак зодиака: ");
+  echo();
+  getnstr(search_zodiac, sizeof(search_zodiac) - 1);
+  noecho();
+
+  mvprintw(2, 2, "Введите год рождения: ");
+  echo();
+  scanw("%d", &search_year);
+  noecho();
+
+  find_by_year_and_zodiac(header, arr, count, search_zodiac,
+  search_year);
+}
+
+void print_db_header(ZNAK_DB_HEADER *header) {
+  clear();
+  mvprintw(1, 2, "Заголовок базы данных:");
+  mvprintw(2, 4, "Сигнатура: %.4s", header->signature);
+  mvprintw(3, 4, "Номер транзакции: %u", header->transaction_id);
+  mvprintw(4, 4, "Количество записей: %u", header->count);
+  mvprintw(5, 4, "Контрольная сумма (CRC32): %u", header->checksum);
+
+  mvprintw(20, 2, "Нажмите любую клавишу для выхода...");
+  getch();
+}
+
+void print_db(ZNAK_DB_HEADER *header, ZNAK *arr, int count) {
+  clear();
+  save_db(header, arr, count);
+  mvprintw(1, 2, "Содержимое базы данных:");
+  db_print_interface(header, arr, count);
+}
+
+void clear_except_first_line() {
+  int rows, cols;
+  getmaxyx(stdscr, rows, cols);
+
+  for (int i = 2; i <= rows; ++i) {
+    move(i, 0);
+    clrtoeol();
+  }
+}
+
+void db_print_interface(ZNAK_DB_HEADER *header, ZNAK *arr, int count) {
+  int rows, cols;
+  getmaxyx(stdscr, rows, cols);
+  
+  int lines_per_page = rows - 10;
+  int start = 0;
+  
+  while (start < count) {
+    clear_except_first_line();
+    mvprintw(2, 4, "%-7s %-41s %-26s %-5s", "№", 
+    "Фамилия и инициалы", "Знак зодиака", "Год");
+    mvhline(3, 4, '-', cols - 8);
+
+    int i, row = 4;
+    for (i = start; i < count && i < start + lines_per_page; ++i) {
+      mvprintw(row++, 4, "%-5d %-25s %-15s %-5d",
+                i + 1, arr[i].name, arr[i].zodiac, arr[i].birth_year);
+    }
+
+    mvprintw(rows - 2, 2,
+"Страница %d/%d. Нажмите 'n' для следующей, 'p' для 
+предыдущей, 'q' для выхода.",
+      (start / lines_per_page) + 1,
+      (count + lines_per_page - 1) / lines_per_page);
+
+    int ch = getch();
+    if (ch == 'q' || ch == 'Q')
+      break;
+    else if (ch == 'n' || ch == 'N')
+      start += lines_per_page;
+    else if (ch == 'p' || ch == 'P') {
+      if (start - lines_per_page >= 0)
+        start -= lines_per_page;
+    } else
+      break;
+  }
+}
+
+void error_msg(const char *msg) {
+  clear();
+  mvprintw(1, 2, msg);
+  mvprintw(3, 2, "Нажмите любую клавишу для повторной попытки...");
+  getch();
+  clear();
+}
+\end{lstlisting}

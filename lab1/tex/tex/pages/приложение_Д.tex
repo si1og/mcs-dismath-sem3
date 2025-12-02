@@ -1,0 +1,21 @@
+\section*{Приложение Д. Задание 2. Заголовочный файл, описывающий функции работы с псевдографическим интерфейсом и базой данных}
+\addcontentsline{toc}{section}{Приложение Д. Задание 2. Заголовочный файл, описывающий функции работы с псевдографическим интерфейсом и базой данных}
+
+\begin{lstlisting}[language=C,numbers=left]
+#include "znak.h"
+
+#define DB_FILENAME "znak_db"
+#define MAX_RECORDS 100
+
+void input_znak(ZNAK *z);
+void save_db(ZNAK_DB_HEADER *header, ZNAK *arr, int count);
+void find_by_year_and_zodiac(ZNAK_DB_HEADER *header, 
+ZNAK *arr, int count, const char *zodiac, int year);
+void add_record(ZNAK_DB_HEADER *header, ZNAK *arr, int *count);
+void search_records(ZNAK_DB_HEADER *header, ZNAK *arr, int count);
+void print_db_header(ZNAK_DB_HEADER *header);
+void db_print_interface(ZNAK_DB_HEADER *header, ZNAK *arr, int count);
+void print_db(ZNAK_DB_HEADER *header, ZNAK *arr, int count);
+void error_msg(const char *msg);
+void clear_except_first_line();
+\end{lstlisting}
