@@ -234,6 +234,8 @@ std::string Operations::subtractPositive(const std::string& a, const std::string
             counter = prev(counter);
         }
 
+        // 
+
         // Вычитаем заём
         char borrowCounter = borrow[borrow.length() - 1];
         borrow = (borrow.length() > 1) ? borrow.substr(0, borrow.length() - 1) : std::string(1, getZero());

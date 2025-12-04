@@ -35,9 +35,10 @@ A = \{x_1^{k_1}, x_2^{k_2}, \ldots, x_n^{k_n}\};\; k_i \leq m_i.
     
     \item Разность:
     \[
-    A \setminus B = A \cap \overline{B}.
+     A \setminus B = A \cap \overline{B} = \{x^{k_{AB}} \mid k_{AB} = \min(k_A, m - k_B)\},
     \]
-    
+    где $m$~--- максимальная кратность элемента универсума.
+
     \item Симметрическая разность:
     \begin{multline*}
     A \triangle B = (A \cup B) \setminus (A \cap B) = (A \cup B) \cap \overline{(A \cap B)} = (A \cup B) \cap (\overline{A} \cup \overline{B}) = \\
