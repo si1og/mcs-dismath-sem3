@@ -116,10 +116,10 @@ std::vector<std::string> Universe::generateGrayCode(int n) {
 Методы доступа к полям класса возвращают соответствующие значения без модификации состояния объекта.
 
 \begin{itemize}
-    \item \texttt{getDepth()}~--- \textbf{Вход:} универсум. \textbf{Выход:} разрядность (\texttt{int}).
-    \item \texttt{getMaxMultiplicity()}~--- \textbf{Вход:} универсум. \textbf{Выход:} максимальная кратность (\texttt{int}).
-    \item \texttt{getElements()}~--- \textbf{Вход:} универсум. \textbf{Выход:} константная ссылка на вектор элементов.
-    \item \texttt{size()}~--- \textbf{Вход:} универсум. \textbf{Выход:} количество элементов (\texttt{int}).
+    \item \texttt{getDepth()}~--- \textbf{Вход:} нет. \textbf{Выход:} разрядность (\texttt{int}).
+    \item \texttt{getMaxMultiplicity()}~--- \textbf{Вход:} нет. \textbf{Выход:} максимальная кратность (\texttt{int}).
+    \item \texttt{getElements()}~--- \textbf{Вход:} нет. \textbf{Выход:} константная ссылка на вектор элементов.
+    \item \texttt{size()}~--- \textbf{Вход:} нет. \textbf{Выход:} количество элементов (\texttt{int}).
 \end{itemize}
 
 \begin{lstlisting}[language=C++, caption=Геттеры класса Universe]
@@ -161,7 +161,7 @@ bool Universe::contains(const std::string& element) const {
 Метод \texttt{printTable} выводит универсум в табличном виде. В зависимости от размера универсума выбирается компактный или постраничный режим отображения.
 
 \begin{itemize}
-    \item \textbf{Вход:} Универсум.
+    \item \textbf{Вход:} нет.
     \item \textbf{Выход:} вывод в \texttt{stdout}.
 \end{itemize}
 
@@ -274,7 +274,7 @@ void Multiset::fillManual(int targetSize) {
 Метод \texttt{fillRandom} заполняет мультимножество случайными элементами и кратностями. Использует генератор псевдослучайных чисел. Сначала определяется случайный размер мультимножества, затем элементы универсума перемешиваются и выбираются первые $n$ элементов с присвоением случайных кратностей.
 
 \begin{itemize}
-    \item \textbf{Вход:} массив с элементами мультимножества.
+    \item \textbf{Вход:} нет.
     \item \textbf{Выход:} заполненное мультимножество со случайными элементами и кратностями.
 \end{itemize}
 
@@ -434,7 +434,7 @@ Multiset Multiset::symmetricDifferenceWith(const Multiset& other) const {
 Метод \texttt{complement} вычисляет дополнение мультимножества до универсума. Для каждого элемента универсума кратность в дополнении равна разности максимальной кратности и текущей.
 
 \begin{itemize}
-    \item \textbf{Вход:} мутьтимножество.
+    \item \textbf{Вход:} нет.
     \item \textbf{Выход:} новый объект \texttt{Multiset}~--- дополнение.
 \end{itemize}
 
@@ -586,7 +586,7 @@ bool Multiset::operator!=(const Multiset& other) const {
 Метод \texttt{isEmpty} проверяет, является ли мультимножество пустым (все кратности равны нулю).
 
 \begin{itemize}
-    \item \textbf{Вход:} мутьтимножество.
+    \item \textbf{Вход:} нет.
     \item \textbf{Выход:} \texttt{true}, если мультимножество пусто, иначе \texttt{false}.
 \end{itemize}
 
@@ -606,7 +606,7 @@ bool Multiset::isEmpty() const {
 Метод \texttt{countNonZero} подсчитывает количество элементов с положительной кратностью.
 
 \begin{itemize}
-    \item \textbf{Вход:} мутьтимножество.
+    \item \textbf{Вход:} нет.
     \item \textbf{Выход:} количество ненулевых элементов (\texttt{int}).
 \end{itemize}
 
@@ -625,7 +625,7 @@ int Multiset::countNonZero() const {
 Метод \texttt{printTable} выводит мультимножество в табличном виде. Выбор между компактным и постраничным режимом зависит от разрядности.
 
 \begin{itemize}
-    \item \textbf{Вход:} мультимножество.
+    \item \textbf{Вход:} нет.
     \item \textbf{Выход:} вывод в \texttt{stdout}.
 \end{itemize}
 
@@ -666,7 +666,7 @@ private:
 Метод \texttt{run} реализует бесконечный цикл отображения главного меню.
 
 \begin{itemize}
-    \item \textbf{Вход:} нет (бесконечный цикл до выхода из программы).
+    \item \textbf{Вход:} нет.
     \item \textbf{Выход:} нет (бесконечный цикл до выхода из программы).
 \end{itemize}
 
@@ -683,7 +683,7 @@ void CLIUI::run() {
 Метод \texttt{showMainMenu} отображает главное меню и обрабатывает выбор пользователя. Выполняет валидацию ввода и вызывает соответствующие методы-обработчики.
 
 \begin{itemize}
-    \item \textbf{Вход:} ввод с клавиатуры.
+    \item \textbf{Вход:} нет (ввод с клавиатуры).
     \item \textbf{Выход:} вызов соответствующего метода-обработчика.
 \end{itemize}
 
@@ -891,7 +891,7 @@ void CLIUI::createMultisetMenu() {
 Метод \texttt{viewMultisetsMenu} выводит все созданные мультимножества.
 
 \begin{itemize}
-    \item \textbf{Вход:} список всех мультимножеств.
+    \item \textbf{Вход:} нет.
     \item \textbf{Выход:} вывод в \texttt{stdout}.
 \end{itemize}
 
@@ -1229,7 +1229,7 @@ void CLIUI::clearScreen() {
 Метод \texttt{pause} ожидает нажатия Enter для продолжения работы.
 
 \begin{itemize}
-    \item \textbf{Вход:} ввод с клавиатуры.
+    \item \textbf{Вход:} нет (ожидание ввода).
     \item \textbf{Выход:} нет.
 \end{itemize}
 
@@ -1277,7 +1277,7 @@ Multiset* CLIUI::getMultiset(const std::string& name) {
 Методы проверки существования универсума и мультимножества:
 
 \begin{itemize}
-    \item \texttt{hasUniverse()}~--- \textbf{Вход:} универсум. \textbf{Выход:} \texttt{bool}.
+    \item \texttt{hasUniverse()}~--- \textbf{Вход:} нет. \textbf{Выход:} \texttt{bool}.
     \item \texttt{hasMultiset(name)}~--- \textbf{Вход:} имя мультимножества. \textbf{Выход:} \texttt{bool}.
 \end{itemize}
 

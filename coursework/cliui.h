@@ -21,11 +21,15 @@ private:
     void subtractionMenu();
     void multiplicationMenu();
     void divisionMenu();
-    void powerMenu();
-    void gcdMenu();
-    void lcmMenu();
     void showSystemInfo();
     void calculatorMode();
+    
+    std::string parseExpression(const std::string& expr, size_t& pos);
+    std::string parseTerm(const std::string& expr, size_t& pos);
+    std::string parseFactor(const std::string& expr, size_t& pos);
+    std::string parseNumber(const std::string& expr, size_t& pos);
+    void skipSpaces(const std::string& expr, size_t& pos);
+    std::string resultToString(const OperationResult& res);
 
 public:
     CLIUI();

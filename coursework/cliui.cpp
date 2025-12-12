@@ -68,25 +68,21 @@ void CLIUI::showMainMenu() {
     }
 
     std::cout << "  Алфавит: {a, b, c, d, e, f, g, h}\n";
-    std::cout << "  Ноль: " << ops->getZero() << ", Единица: " << ops->getOne() << "\n\n";
-
-    std::cout << ops->increment("bb") << "\n";
+    std::cout << "  Ноль: " << ops->getZero() << ", Единица: " << ops->getOne() << "\n";
+    std::cout << "  Правило +1: a→b→g→d→h→e→f→c→a\n\n";
 
     printSeparator();
     std::cout << "Главное меню:\n";
 
     std::cout << "  [1] Информация о системе\n";
-    std::cout << "  [2] Сложение (+)\n";
-    std::cout << "  [3] Вычитание (-)\n";
-    std::cout << "  [4] Умножение (*)\n";
-    std::cout << "  [5] Деление (÷)\n";
-    std::cout << "  [6] Возведение в степень\n";
-    std::cout << "  [7] НОД (наибольший общий делитель)\n";
-    std::cout << "  [8] НОК (наименьшее общее кратное)\n";
+    std::cout << "  [2] Сложение\n";
+    std::cout << "  [3] Вычитание\n";
+    std::cout << "  [4] Умножение\n";
+    std::cout << "  [5] Деление\n";
     std::cout << "  [C] Режим калькулятора\n";
     std::cout << "  [0] Выход\n";
 
-    std::cout << "Ваш выбор: ";
+    std::cout << "\nВаш выбор: ";
 
     std::string choice;
     std::cin >> choice;
@@ -101,12 +97,6 @@ void CLIUI::showMainMenu() {
         multiplicationMenu();
     } else if (choice == "5") {
         divisionMenu();
-    } else if (choice == "6") {
-        powerMenu();
-    } else if (choice == "7") {
-        gcdMenu();
-    } else if (choice == "8") {
-        lcmMenu();
     } else if (choice == "c" || choice == "C") {
         calculatorMode();
     } else if (choice == "0") {
@@ -188,133 +178,195 @@ void CLIUI::divisionMenu() {
     pause();
 }
 
-void CLIUI::powerMenu() {
-    clearScreen();
-    printHeader("ВОЗВЕДЕНИЕ В СТЕПЕНЬ");
-
-    std::string base = inputNumber("Введите основание: ");
-    if (base.empty()) { pause(); return; }
-
-    std::string exp = inputNumber("Введите показатель степени: ");
-    if (exp.empty()) { pause(); return; }
-
-    OperationResult result = ops->power(base, exp);
-    ops->printResult("^", base, exp, result);
-
-    pause();
-}
-
-void CLIUI::gcdMenu() {
-    clearScreen();
-    printHeader("НОД (НАИБОЛЬШИЙ ОБЩИЙ ДЕЛИТЕЛЬ)");
-
-    std::string a = inputNumber("Введите первое число: ");
-    if (a.empty()) { pause(); return; }
-
-    std::string b = inputNumber("Введите второе число: ");
-    if (b.empty()) { pause(); return; }
-
-    std::string result = ops->gcd(a, b);
-    std::cout << "\n  НОД(" << a << ", " << b << ") = " << result << "\n";
-
-    pause();
-}
-
-void CLIUI::lcmMenu() {
-    clearScreen();
-    printHeader("НОК (НАИМЕНЬШЕЕ ОБЩЕЕ КРАТНОЕ)");
-
-    std::string a = inputNumber("Введите первое число: ");
-    if (a.empty()) { pause(); return; }
-
-    std::string b = inputNumber("Введите второе число: ");
-    if (b.empty()) { pause(); return; }
-
-    OperationResult result = ops->lcm(a, b);
-
-    std::cout << "\n  НОК(" << a << ", " << b << ") = ";
-    if (result.isOverflow) {
-        std::cout << "ПЕРЕПОЛНЕНИЕ (" << result.value << ")\n";
-    } else {
-        std::cout << result.value << "\n";
+void CLIUI::skipSpaces(const std::string& expr, size_t& pos) {
+    while (pos < expr.length() && expr[pos] == ' ') {
+        ++pos;
     }
+}
 
-    pause();
+std::string CLIUI::resultToString(const OperationResult& res) {
+    return (res.isNegative ? "-" : "") + res.value;
+}
+
+std::string CLIUI::parseNumber(const std::string& expr, size_t& pos) {
+    skipSpaces(expr, pos);
+    
+    std::string num;
+    
+    // Проверяем унарный минус
+    if (pos < expr.length() && expr[pos] == '-') {
+        num += '-';
+        ++pos;
+    }
+    
+    // Читаем символы алфавита
+    while (pos < expr.length() && ops->isValidChar(expr[pos])) {
+        num += expr[pos];
+        ++pos;
+    }
+    
+    if (num.empty() || num == "-") {
+        throw std::runtime_error("Ожидалось число");
+    }
+    
+    return ops->normalize(num);
+}
+
+// Парсит фактор: число или выражение в скобках
+std::string CLIUI::parseFactor(const std::string& expr, size_t& pos) {
+    skipSpaces(expr, pos);
+    
+    // Унарный минус перед скобкой
+    bool negate = false;
+    if (pos < expr.length() && expr[pos] == '-') {
+        // Проверяем, не число ли это
+        size_t nextPos = pos + 1;
+        skipSpaces(expr, nextPos);
+        if (nextPos < expr.length() && expr[nextPos] == '(') {
+            negate = true;
+            ++pos;
+            skipSpaces(expr, pos);
+        }
+    }
+    
+    std::string result;
+    
+    if (pos < expr.length() && expr[pos] == '(') {
+        ++pos; // пропускаем '('
+        result = parseExpression(expr, pos);
+        skipSpaces(expr, pos);
+        if (pos >= expr.length() || expr[pos] != ')') {
+            throw std::runtime_error("Ожидалась закрывающая скобка ')'");
+        }
+        ++pos; // пропускаем ')'
+    } else {
+        result = parseNumber(expr, pos);
+    }
+    
+    if (negate) {
+        result = ops->negate(result);
+    }
+    
+    return result;
+}
+
+// Парсит терм: факторы, соединённые * или /
+std::string CLIUI::parseTerm(const std::string& expr, size_t& pos) {
+    std::string left = parseFactor(expr, pos);
+    
+    while (true) {
+        skipSpaces(expr, pos);
+        
+        if (pos >= expr.length()) break;
+        
+        char op = expr[pos];
+        if (op != '*' && op != '/') break;
+        
+        ++pos; // пропускаем оператор
+        std::string right = parseFactor(expr, pos);
+        
+        if (op == '*') {
+            OperationResult res = ops->multiply(left, right);
+            left = resultToString(res);
+        } else {
+            DivisionResult res = ops->divide(left, right);
+            if (res.isDivByZero || res.isZeroByZero) {
+                throw std::runtime_error("Деление на ноль");
+            }
+            // Выводим остаток, если он есть
+            if (!ops->isZeroNumber(res.remainder)) {
+                std::cout << "  (остаток: " << res.remainder << ")\n";
+            }
+            left = res.quotient;
+        }
+    }
+    
+    return left;
+}
+
+// Парсит выражение: термы, соединённые + или -
+std::string CLIUI::parseExpression(const std::string& expr, size_t& pos) {
+    skipSpaces(expr, pos);
+    
+    // Обработка унарного минуса в начале выражения
+    bool negateFirst = false;
+    if (pos < expr.length() && expr[pos] == '-') {
+        size_t nextPos = pos + 1;
+        skipSpaces(expr, nextPos);
+        // Если после минуса идёт скобка, это унарный минус
+        if (nextPos < expr.length() && expr[nextPos] == '(') {
+            negateFirst = false; // обработается в parseFactor
+        }
+    }
+    
+    std::string left = parseTerm(expr, pos);
+    
+    while (true) {
+        skipSpaces(expr, pos);
+        
+        if (pos >= expr.length()) break;
+        
+        char op = expr[pos];
+        if (op != '+' && op != '-') break;
+        
+        ++pos; // пропускаем оператор
+        std::string right = parseTerm(expr, pos);
+        
+        if (op == '+') {
+            OperationResult res = ops->add(left, right);
+            left = resultToString(res);
+        } else {
+            OperationResult res = ops->subtract(left, right);
+            left = resultToString(res);
+        }
+    }
+    
+    return left;
 }
 
 void CLIUI::calculatorMode() {
     clearScreen();
     printHeader("РЕЖИМ КАЛЬКУЛЯТОРА");
 
-    std::cout << "  Формат ввода: <число1> <операция> <число2>\n";
+    std::cout << "  Поддерживаются выражения со скобками!\n";
+    std::cout << "  Примеры: g*(b+d), (bg+c)*g, ((a+b)+c)\n";
     std::cout << "  Операции: +, -, *, /\n";
     std::cout << "  Для выхода введите 'q'\n\n";
 
     printSeparator();
 
+    // Очищаем буфер ввода
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
     while (true) {
         std::cout << "\n> ";
 
         std::string input;
-        std::getline(std::cin >> std::ws, input);
+        std::getline(std::cin, input);
+
+        // Убираем пробелы в начале и конце
+        while (!input.empty() && input[0] == ' ') input = input.substr(1);
+        while (!input.empty() && input.back() == ' ') input.pop_back();
+
+        if (input.empty()) continue;
 
         if (input == "q" || input == "Q" || input == "exit" || input == "quit") {
             break;
         }
 
-        std::string a, op, b;
-        size_t pos1 = 0;
-
-        // Находим первое число (может начинаться с -)
-        if (input[0] == '-') {
-            pos1 = input.find_first_of("+-*/", 1);
-        } else {
-            pos1 = input.find_first_of("+-*/");
-        }
-
-        if (pos1 == std::string::npos) {
-            std::cout << "  Неверный формат! Используйте: число операция число\n";
-            continue;
-        }
-
-        a = input.substr(0, pos1);
-        op = input[pos1];
-
-        // Убираем пробелы
-        while (!a.empty() && a.back() == ' ') a.pop_back();
-
-        std::string rest = input.substr(pos1 + 1);
-        while (!rest.empty() && rest[0] == ' ') rest = rest.substr(1);
-        b = rest;
-        while (!b.empty() && b.back() == ' ') b.pop_back();
-
-        if (!ops->isValidNumber(a)) {
-            std::cout << "  Некорректное первое число: " << a << "\n";
-            continue;
-        }
-
-        if (!ops->isValidNumber(b)) {
-            std::cout << "  Некорректное второе число: " << b << "\n";
-            continue;
-        }
-
-        a = ops->normalize(a);
-        b = ops->normalize(b);
-
-        if (op == "+") {
-            OperationResult result = ops->add(a, b);
-            ops->printResult("+", a, b, result);
-        } else if (op == "-") {
-            OperationResult result = ops->subtract(a, b);
-            ops->printResult("-", a, b, result);
-        } else if (op == "*") {
-            OperationResult result = ops->multiply(a, b);
-            ops->printResult("*", a, b, result);
-        } else if (op == "/") {
-            DivisionResult result = ops->divide(a, b);
-            ops->printDivisionResult(a, b, result);
-        } else {
-            std::cout << "  Неизвестная операция: " << op << "\n";
+        try {
+            size_t pos = 0;
+            std::string result = parseExpression(input, pos);
+            
+            skipSpaces(input, pos);
+            if (pos < input.length()) {
+                throw std::runtime_error("Неожиданный символ: '" + std::string(1, input[pos]) + "'");
+            }
+            
+            std::cout << "  = " << result << "\n";
+            
+        } catch (const std::exception& e) {
+            std::cout << "  Ошибка: " << e.what() << "\n";
         }
     }
 }
