@@ -6,7 +6,7 @@
 
 Максимальная разрядность чисел задаётся константой:
 
-\begin{lstlisting}[language=C++, caption=Константные значения]
+\begin{lstlisting}[language=C++, caption=Константные значения, basicstyle=\footnotesize\ttfamily]
 static const int MAX_DIGITS = 8;
 \end{lstlisting}
 
@@ -14,11 +14,11 @@ static const int MAX_DIGITS = 8;
 
 \subsection{Класс Z8}
 
-Класс \texttt{Z8} представляет базовую структуру конечной арифметики. Хранит алфавит, правила $+1$ и $-1$, а также аддитивную и мультипликативную единицы.
+Класс \texttt{Z8} представляет базовую структуру конечной арифметики. Хранит алфавит, правила <<$+1$>> и <<$-1$>>, а также аддитивную и мультипликативную единицы.
 
 \subsubsection*{Структура данных}
 
-\begin{lstlisting}[language=C++, caption=Поля класса Z8]
+\begin{lstlisting}[language=C++, caption=Поля класса Z8, basicstyle=\footnotesize\ttfamily]
 class Z8 {
 protected:
     std::map<char, char> plusOneRule;   
@@ -32,28 +32,28 @@ protected:
 
 \subsubsection*{Конструктор и инициализация}
 
-Конструктор инициализирует алфавит и вызывает метод \texttt{initVariant()}, который задаёт правило $+1$ согласно варианту 49.
+Конструктор инициализирует алфавит и вызывает метод \texttt{initVariant()}, который задаёт правило <<$+1$>> согласно варианту 49.
 
 \begin{itemize}
     \item \textbf{Вход:} номер варианта (по умолчанию 49).
     \item \textbf{Выход:} инициализированный объект системы $Z_8$ с заполненными таблицами правил.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Конструктор Z8]
+\begin{lstlisting}[language=C++, caption=Конструктор Z8, basicstyle=\footnotesize\ttfamily]
 Z8::Z8() : additiveIdentity('a'), multiplicativeIdentity('b') {
     alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
     initVariant();
 }
 \end{lstlisting}
 
-Метод \texttt{initVariant} заполняет таблицы правил $+1$ и $-1$.
+Метод \texttt{initVariant} заполняет таблицы правил <<$+1$>> и <<$-1$>>.
 
 \begin{itemize}
     \item \textbf{Вход:} массив правил перехода для варианта 49.
     \item \textbf{Выход:} заполненные ассоциативные массивы \texttt{plusOneRule} и \texttt{minusOneRule}.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Инициализация правила +1]
+\begin{lstlisting}[language=C++, caption=Инициализация правила +1, basicstyle=\footnotesize\ttfamily]
 void Z8::initVariant() {
     // a+1=b, b+1=g, c+1=a, d+1=h, e+1=f, f+1=c, g+1=d, h+1=e
     char rule[8] = {'b', 'g', 'a', 'h', 'f', 'c', 'd', 'e'};
@@ -70,18 +70,18 @@ void Z8::initVariant() {
 }
 \end{lstlisting}
 
-Правило $-1$ строится автоматически как обратное к правилу $+1$.
+Правило <<$-1$>> строится автоматически как обратное к правилу <<$+1$>>.
 
 \subsubsection*{Операции next и prev}
 
-Методы \texttt{next} и \texttt{prev} реализуют базовые операции $+1$ и $-1$ над одиночными символами.
+Методы \texttt{next} и \texttt{prev} реализуют действия $+1$ и $-1$ над одиночными символами.
 
 \begin{itemize}
     \item \textbf{Вход:} символ алфавита.
     \item \textbf{Выход:} следующий (предыдущий) символ по правилу.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Операции next и prev]
+\begin{lstlisting}[language=C++, caption=Операции next и prev, basicstyle=\footnotesize\ttfamily]
 char Z8::next(char c) const {
     auto it = plusOneRule.find(c);
     if (it == plusOneRule.end()) {
@@ -112,12 +112,44 @@ char Z8::prev(char c) const {
     \item \texttt{getBase()}~--- \textbf{Вход:} объект $Z_8$. \textbf{Выход:} основание системы (8).
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Геттеры класса Z8]
+\begin{lstlisting}[language=C++, caption=Геттеры класса Z8, basicstyle=\footnotesize\ttfamily]
 char Z8::getZero() const { return additiveIdentity; }
 char Z8::getOne() const { return multiplicativeIdentity; }
 const std::vector<char>& Z8::getAlphabet() const { return alphabet; }
 int Z8::getBase() const { return static_cast<int>(alphabet.size()); }
 \end{lstlisting}
+
+\subsubsection*{Проверки и вывод информации}
+
+Дополнительные методы класса \texttt{Z8}:
+
+\begin{itemize}
+    \item \texttt{isZero(char c)}~--- проверяет, является ли символ аддитивной единицей.
+    \begin{itemize}
+        \item \textbf{Вход:} цифра.
+        \item \textbf{Выход:} истина, если аддитивная единица, иначе ложь.
+    \end{itemize}
+    \item \texttt{isOne(char c)}~--- проверяет, является ли символ мультипликативной единицей.
+    \begin{itemize}
+        \item \textbf{Вход:} цифра.
+        \item \textbf{Выход:} истина, если мультипликативная единица, иначе ложь.
+    \end{itemize}
+    \item \texttt{isValidChar(char c)}~--- проверяет принадлежность символа алфавиту.
+    \begin{itemize}
+        \item \textbf{Вход:} цифра.
+        \item \textbf{Выход:} истина, если мультипликативная единица, иначе ложь.
+    \end{itemize}
+    \item \texttt{printPlusOneTable()}~--- выводит таблицу правила <<$+1$>> в консоль.
+    \begin{itemize}
+        \item \textbf{Вход:} алфавит.
+        \item \textbf{Выход:} таблица <<$+1$>>.
+    \end{itemize}
+    \item \texttt{printInfo()}~--- выводит полную информацию о системе: вариант, алфавит, единицы, таблицу правила.
+    \begin{itemize}
+        \item \textbf{Вход:} алфавит, аддитивная единица, мультипликативная единица, максимальная разрядность.
+        \item \textbf{Выход:} информация о системе $Z_8$.
+    \end{itemize}
+\end{itemize}
 
 \subsection{Класс Operations}
 
@@ -127,7 +159,7 @@ int Z8::getBase() const { return static_cast<int>(alphabet.size()); }
 
 Для хранения результатов операций используются две структуры:
 
-\begin{lstlisting}[language=C++, caption=Структуры результатов]
+\begin{lstlisting}[language=C++, caption=Структуры результатов, basicstyle=\footnotesize\ttfamily]
 struct OperationResult {
     std::string value;
     bool isOverflow;
@@ -150,6 +182,51 @@ struct DivisionResult {
 
 \subsubsection*{Вспомогательные методы}
 
+Класс \texttt{Operations} содержит ряд вспомогательных методов для работы с числами:
+
+\begin{itemize}
+    \item \texttt{abs(num)}~--- возвращает абсолютное значение числа (удаляет знак минус).
+    \begin{itemize}
+        \item \textbf{Вход:} число.
+        \item \textbf{Выход:} модуль числа.
+    \end{itemize}
+    \item \texttt{isZeroNumber(num)}~--- проверяет, является ли число нулём.
+    \begin{itemize}
+        \item \textbf{Вход:} число.
+        \item \textbf{Выход:} истина, если ноль, иначе ложь.
+    \end{itemize}
+    \item \texttt{isNegative(num)}~--- проверяет, является ли число отрицательным.
+    \begin{itemize}
+        \item \textbf{Вход:} число.
+        \item \textbf{Выход:} истина, если отрицательное, иначе ложь.
+    \end{itemize}
+    \item \texttt{negate(num)}~--- меняет знак числа на противоположный.
+    \begin{itemize}
+        \item \textbf{Вход:} число.
+        \item \textbf{Выход:} число с противополеженным знаком.
+    \end{itemize}
+    \item \texttt{normalize(num)}~--- приводит число к стандартному виду (удаляет ведущие нули, обрабатывает знак).
+    \begin{itemize}
+        \item \textbf{Вход:} цисло.
+        \item \textbf{Выход:} <<нормализованное>> число.
+    \end{itemize}
+    \item \texttt{isValidNumber(num)}~--- проверяет корректность записи числа.
+    \begin{itemize}
+        \item \textbf{Вход:} число.
+        \item \textbf{Выход:} истина, если запись корректна, иначе ложь.
+    \end{itemize}
+    \item \texttt{getMaxPositive()}~--- возвращает максимальное положительное число ($cccccccc$).
+    \begin{itemize}
+        \item \textbf{Вход:} самая большая цифра, максимальная разрядность.
+        \item \textbf{Выход:} максимальное положительное число.
+    \end{itemize}
+    \item \texttt{getMaxNegative()}~--- возвращает минимальное отрицательное число ($-cccccccc$).
+    \begin{itemize}
+        \item \textbf{Вход:} самая большая цифра, максимальная разрядность.
+        \item \textbf{Выход:} минимальное отрицательное число.
+    \end{itemize}
+\end{itemize}
+
 Метод \texttt{trimLeadingZeros} удаляет ведущие нули из числа.
 
 \begin{itemize}
@@ -157,7 +234,7 @@ struct DivisionResult {
     \item \textbf{Выход:} строка без ведущих нулей (минимум один символ).
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Удаление ведущих нулей]
+\begin{lstlisting}[language=C++, caption=Удаление ведущих нулей, basicstyle=\footnotesize\ttfamily]
 std::string Operations::trimLeadingZeros(const std::string& num) const {
     if (num.empty()) return std::string(1, getZero());
 
@@ -177,7 +254,7 @@ std::string Operations::trimLeadingZeros(const std::string& num) const {
     \item \textbf{Выход:} $1$ если $|a| > |b|$, $-1$ если $|a| < |b|$, $0$ если равны.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Сравнение по модулю]
+\begin{lstlisting}[language=C++, caption=Сравнение по модулю, basicstyle=\footnotesize\ttfamily]
 int Operations::compareAbs(const std::string& a, const std::string& b) const {
     std::string normA = trimLeadingZeros(abs(a));
     std::string normB = trimLeadingZeros(abs(b));
@@ -216,7 +293,7 @@ int Operations::compareAbs(const std::string& a, const std::string& b) const {
     \item \textbf{Выход:} число, увеличенное на единицу.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Инкремент числа]
+\begin{lstlisting}[language=C++, caption=Инкремент числа, basicstyle=\footnotesize\ttfamily]
 std::string Operations::increment(const std::string& num) const {
     if (num.empty()) return std::string(1, getOne());
 
@@ -237,6 +314,13 @@ std::string Operations::increment(const std::string& num) const {
 
 Алгоритм проходит по цифрам справа налево, применяя правило $+1$. Если после применения цифра не стала нулём, операция завершена. Иначе продолжаем с переносом.
 
+Метод \texttt{decrement} вычитает единицу из многоразрядного числа. Алгоритм аналогичен инкременту, но использует правило $-1$. При достижении нуля в текущем разряде устанавливается максимальная цифра и заимствование передаётся в старший разряд.
+
+\begin{itemize}
+    \item \textbf{Вход:} число.
+    \item \textbf{Выход:} число, уменьшенное на единицу.
+\end{itemize}
+
 \subsubsection*{Сложение положительных чисел}
 
 Метод \texttt{addPositive} складывает два положительных многоразрядных числа.
@@ -246,7 +330,7 @@ std::string Operations::increment(const std::string& num) const {
     \item \textbf{Выход:} сумма $a + b$.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Сложение положительных чисел]
+\begin{lstlisting}[language=C++, caption=Сложение положительных чисел, basicstyle=\footnotesize\ttfamily]
 std::string Operations::addPositive(const std::string& a, 
                                      const std::string& b) const {
     std::string numA = trimLeadingZeros(a);
@@ -305,7 +389,7 @@ std::string Operations::addPositive(const std::string& a,
     \item \textbf{Выход:} разность $a - b$.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Вычитание положительных чисел]
+\begin{lstlisting}[language=C++, caption=Вычитание положительных чисел, basicstyle=\footnotesize\ttfamily]
 std::string Operations::subtractPositive(const std::string& a, 
                                           const std::string& b) const {
     std::string numA = trimLeadingZeros(a);
@@ -366,7 +450,7 @@ std::string Operations::subtractPositive(const std::string& a,
     \item \textbf{Выход:} произведение \texttt{num} $\cdot$ \texttt{digit}.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Умножение на цифру]
+\begin{lstlisting}[language=C++, caption=Умножение на цифру, basicstyle=\footnotesize\ttfamily]
 std::string Operations::multiplyByDigit(const std::string& num, 
                                          char digit) const {
     if (digit == getZero()) return std::string(1, getZero());
@@ -393,7 +477,7 @@ std::string Operations::multiplyByDigit(const std::string& num,
     \item \textbf{Выход:} произведение $a \cdot b$.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Умножение многозначных чисел]
+\begin{lstlisting}[language=C++, caption=Умножение многозначных чисел, basicstyle=\footnotesize\ttfamily]
 std::string Operations::multiplyPositive(const std::string& a, 
                                           const std::string& b) const {
     if (isZeroNumber(a) || isZeroNumber(b)) {
@@ -433,9 +517,8 @@ std::string Operations::multiplyPositive(const std::string& a,
     \item \textbf{Выход:} частное $q$ и остаток $r$, такие что $a = b \cdot q + r$, где $0 \leq r < |b|$.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Деление с остатком]
-DivisionResult Operations::divide(const std::string& a, 
-                                   const std::string& b) const {
+\begin{lstlisting}[language=C++, caption=Деление с остатком, basicstyle=\footnotesize\ttfamily]
+DivisionResult Operations::divide(const std::string& a, const std::string& b) const {
     DivisionResult res;
 
     std::string normA = normalize(a);
@@ -449,13 +532,12 @@ DivisionResult Operations::divide(const std::string& a,
     if (isZeroNumber(normB)) {
         if (isZeroNumber(normA)) {
             res.isZeroByZero = true;
-            res.quotient = "[" + getMaxNegative() + "; " 
-                         + getMaxPositive() + "]";
+            res.quotient = "[" + getMaxNegative() + "; " + getMaxPositive() + "]";
             res.remainder = std::string(1, getZero());
         } else {
             res.isDivByZero = true;
-            res.quotient = "O/";
-            res.remainder = "O/";
+            res.quotient = "Пустое множество";
+            res.remainder = "Пустое множество";
         }
         return res;
     }
@@ -475,8 +557,9 @@ DivisionResult Operations::divide(const std::string& a,
         quotient = increment(quotient);
     }
 
-    // если делимое отрицательно, а делитель положителен
-    if (negA && !negB && !isZeroNumber(remainder)) {
+    // -a / b с остатком
+    if (negA && !negB && !isZeroNumber(remainder) 
+        || !negA && negB && !isZeroNumber(remainder)) {
         quotient = increment(quotient);
         remainder = subtractPositive(absB, remainder);
     }
@@ -508,7 +591,7 @@ DivisionResult Operations::divide(const std::string& a,
 
 Класс хранит умный указатель на объект арифметических операций.
 
-\begin{lstlisting}[language=C++, caption=Поля класса CLIUI]
+\begin{lstlisting}[language=C++, caption=Поля класса CLIUI, basicstyle=\footnotesize\ttfamily]
 class CLIUI {
 private:
     std::unique_ptr<Operations> ops;
@@ -524,7 +607,7 @@ private:
     \item \textbf{Выход:} завершение программы по команде пользователя.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Главный цикл]
+\begin{lstlisting}[language=C++, caption=Главный цикл, basicstyle=\footnotesize\ttfamily]
 void CLIUI::run() {
     while (true) {
         showMainMenu();
@@ -541,7 +624,7 @@ void CLIUI::run() {
     \item \textbf{Выход:} переход к выбранному действию или завершение программы.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Главное меню]
+\begin{lstlisting}[language=C++, caption=Главное меню, basicstyle=\footnotesize\ttfamily]
 void CLIUI::showMainMenu() {
     clearScreen();
 
@@ -590,6 +673,84 @@ void CLIUI::showMainMenu() {
     \item \texttt{factor} ::= \texttt{number} | '(' \texttt{expression} ')' | '-' \texttt{factor}
 \end{itemize}
 
+Метод \texttt{parseNumber} считывает число из строки выражения.
+
+\begin{itemize}
+    \item \textbf{Вход:} строка выражения и текущая позиция.
+    \item \textbf{Выход:} нормализованное число; позиция обновляется.
+\end{itemize}
+
+\begin{lstlisting}[language=C++, caption=Парсинг числа, basicstyle=\footnotesize\ttfamily]
+std::string CLIUI::parseNumber(const std::string& expr, size_t& pos) {
+    skipSpaces(expr, pos);
+    
+    std::string num;
+    
+    if (pos < expr.length() && expr[pos] == '-') {
+        num += '-';
+        ++pos;
+    }
+    
+    while (pos < expr.length() && ops->isValidChar(expr[pos])) {
+        num += expr[pos];
+        ++pos;
+    }
+    
+    if (num.empty() || num == "-") {
+        throw std::runtime_error("Ожидалось число");
+    }
+    
+    return ops->normalize(num);
+}
+\end{lstlisting}
+
+Метод \texttt{parseFactor} разбирает фактор (число, выражение в скобках или унарный минус).
+
+\begin{itemize}
+    \item \textbf{Вход:} строка выражения и текущая позиция.
+    \item \textbf{Выход:} вычисленное значение фактора; позиция обновляется.
+\end{itemize}
+
+\begin{lstlisting}[language=C++, caption=Вычисление фактора, basicstyle=\footnotesize\ttfamily]
+std::string CLIUI::parseFactor(const std::string& expr, size_t& pos) {
+    skipSpaces(expr, pos);
+    
+    bool negate = false;
+    if (pos < expr.length() && expr[pos] == '-') {
+        size_t nextPos = pos + 1;
+        skipSpaces(expr, nextPos);
+        if (nextPos < expr.length() && expr[nextPos] == '(') {
+            negate = true;
+            ++pos;
+            skipSpaces(expr, pos);
+        }
+    }
+    
+    std::string result;
+    
+    if (pos < expr.length() && expr[pos] == '(') {
+        ++pos;
+        result = parseExpression(expr, pos);
+        skipSpaces(expr, pos);
+        if (pos >= expr.length() || expr[pos] != ')') {
+            throw std::runtime_error("Ожидалась закрывающая скобка ')'");
+        }
+        ++pos;
+    } else {
+        result = parseNumber(expr, pos);
+    }
+    
+    if (negate) {
+        result = ops->negate(result);
+    }
+    
+    return result;
+}
+\end{lstlisting}
+
+Метод обрабатывает унарный минус перед скобками: $-(expr)$ вычисляется как отрицание результата выражения в скобках.
+
+
 Метод \texttt{parseTerm} разбирает терм (произведение или частное факторов).
 
 \begin{itemize}
@@ -597,7 +758,7 @@ void CLIUI::showMainMenu() {
     \item \textbf{Выход:} вычисленное значение терма; позиция обновляется.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Парсинг терма]
+\begin{lstlisting}[language=C++, caption=Парсинг терма, basicstyle=\footnotesize\ttfamily]
 std::string CLIUI::parseTerm(const std::string& expr, size_t& pos) {
     std::string left = parseFactor(expr, pos);
     
@@ -643,7 +804,7 @@ std::string CLIUI::parseTerm(const std::string& expr, size_t& pos) {
     \item \textbf{Выход:} вычисленное значение выражения; позиция обновляется.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Парсинг выражения]
+\begin{lstlisting}[language=C++, caption=Парсинг выражения, basicstyle=\footnotesize\ttfamily]
 std::string CLIUI::parseExpression(const std::string& expr, size_t& pos) {
     skipSpaces(expr, pos);
     
@@ -682,7 +843,7 @@ std::string CLIUI::parseExpression(const std::string& expr, size_t& pos) {
     \item \textbf{Выход:} результаты вычислений или сообщения об ошибках.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Режим калькулятора]
+\begin{lstlisting}[language=C++, caption=Режим калькулятора, basicstyle=\footnotesize\ttfamily]
 void CLIUI::calculatorMode() {
     clearScreen();
     printHeader("РЕЖИМ КАЛЬКУЛЯТОРА");
@@ -735,7 +896,7 @@ void CLIUI::calculatorMode() {
     \item \textbf{Выход:} строковое представление числа или исключение при переполнении.
 \end{itemize}
 
-\begin{lstlisting}[language=C++, caption=Обработка результата]
+\begin{lstlisting}[language=C++, caption=Обработка результата, basicstyle=\footnotesize\ttfamily]
 std::string CLIUI::resultToString(const OperationResult& res) {
     if (res.isOverflow) {
         throw std::runtime_error("ПЕРЕПОЛНЕНИЕ");
@@ -745,3 +906,55 @@ std::string CLIUI::resultToString(const OperationResult& res) {
 \end{lstlisting}
 
 При переполнении, делении на ноль или неопределённости $0/0$ выбрасывается исключение, которое перехватывается в главном цикле калькулятора и выводится пользователю.
+
+\subsubsection*{Вспомогательные методы интерфейса}
+
+Класс \texttt{CLIUI} содержит вспомогательные методы для работы с консолью:
+
+\subsubsection*{Вспомогательные методы интерфейса}
+
+Класс \texttt{CLIUI} содержит вспомогательные методы для работы с консолью:
+
+\begin{itemize}
+    \item \texttt{clearScreen()}~--- очищает экран терминала системным вызовом.
+    \begin{itemize}
+        \item \textbf{Вход:} состояние терминала.
+        \item \textbf{Выход:} очищенный экран терминала.
+    \end{itemize}
+    
+    \item \texttt{pause()}~--- ожидает нажатия Enter для продолжения работы.
+    \begin{itemize}
+        \item \textbf{Вход:} состояние ожидания ввода.
+        \item \textbf{Выход:} продолжение выполнения после нажатия Enter.
+    \end{itemize}
+    
+    \item \texttt{printHeader(title)}~--- выводит заголовок в рамке.
+    \begin{itemize}
+        \item \textbf{Вход:} строка заголовка.
+        \item \textbf{Выход:} отформатированный заголовок в консоли.
+    \end{itemize}
+    
+    \item \texttt{printSeparator()}~--- выводит горизонтальную линию-разделитель.
+    \begin{itemize}
+        \item \textbf{Вход:} состояние консоли.
+        \item \textbf{Выход:} горизонтальная линия в консоли.
+    \end{itemize}
+    
+    \item \texttt{hasSystem()}~--- проверяет, инициализирована ли система $Z_8$.
+    \begin{itemize}
+        \item \textbf{Вход:} указатель на объект операций.
+        \item \textbf{Выход:} истина, если система инициализирована, иначе ложь.
+    \end{itemize}
+    
+    \item \texttt{showSystemInfo()}~--- вызывает метод \texttt{printInfo()} класса $Z_8$ для отображения информации о системе.
+    \begin{itemize}
+        \item \textbf{Вход:} инициализированная система $Z_8$.
+        \item \textbf{Выход:} информация о системе в консоли.
+    \end{itemize}
+    
+    \item \texttt{skipSpaces(expr, pos)}~--- пропускает пробелы в строке выражения.
+    \begin{itemize}
+        \item \textbf{Вход:} строка выражения и текущая позиция.
+        \item \textbf{Выход:} обновлённая позиция, указывающая на первый непробельный символ.
+    \end{itemize}
+\end{itemize}

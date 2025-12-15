@@ -79,8 +79,6 @@ void CLIUI::showSystemInfo() {
     pause();
 }
 
-// ==================== ПАРСЕР ВЫРАЖЕНИЙ ====================
-
 void CLIUI::skipSpaces(const std::string& expr, size_t& pos) {
     while (pos < expr.length() && expr[pos] == ' ') {
         ++pos;
@@ -174,8 +172,8 @@ std::string CLIUI::parseTerm(const std::string& expr, size_t& pos) {
                 throw std::runtime_error("Пустое множество");
             }
             if (res.isZeroByZero) {
-                throw std::runtime_error("Неопределённость: результат - любое число от " 
-                    + ops->getMaxNegative() + " до " + ops->getMaxPositive());
+                throw std::runtime_error("Неопределённость: результат - любое число в [" 
+                    + ops->getMaxNegative() + ";" + ops->getMaxPositive() + "]");
             }
             if (!ops->isZeroNumber(res.remainder)) {
                 std::cout << "  (остаток: " << res.remainder << ")\n";
