@@ -29,29 +29,6 @@ bool CLIUI::hasSystem() const {
     return ops != nullptr;
 }
 
-std::string CLIUI::inputNumber(const std::string& prompt) {
-    std::string num;
-    std::cout << prompt;
-    std::cin >> num;
-
-    if (!ops->isValidNumber(num)) {
-        std::cout << "  ⚠ Некорректное число! Допустимые символы: ";
-        for (char c : ops->getAlphabet()) {
-            std::cout << c << " ";
-        }
-        std::cout << "\n  (для отрицательных чисел используйте '-' в начале)\n";
-        return "";
-    }
-
-    std::string absNum = ops->abs(num);
-    if (absNum.length() > MAX_DIGITS) {
-        std::cout << "  ⚠ Число слишком длинное! Максимум " << MAX_DIGITS << " разрядов.\n";
-        return "";
-    }
-
-    return ops->normalize(num);
-}
-
 void CLIUI::run() {
     while (true) {
         showMainMenu();
@@ -75,10 +52,6 @@ void CLIUI::showMainMenu() {
     std::cout << "Главное меню:\n";
 
     std::cout << "  [1] Информация о системе\n";
-    std::cout << "  [2] Сложение\n";
-    std::cout << "  [3] Вычитание\n";
-    std::cout << "  [4] Умножение\n";
-    std::cout << "  [5] Деление\n";
     std::cout << "  [C] Режим калькулятора\n";
     std::cout << "  [0] Выход\n";
 
@@ -89,14 +62,6 @@ void CLIUI::showMainMenu() {
 
     if (choice == "1") {
         showSystemInfo();
-    } else if (choice == "2") {
-        additionMenu();
-    } else if (choice == "3") {
-        subtractionMenu();
-    } else if (choice == "4") {
-        multiplicationMenu();
-    } else if (choice == "5") {
-        divisionMenu();
     } else if (choice == "c" || choice == "C") {
         calculatorMode();
     } else if (choice == "0") {
@@ -114,69 +79,7 @@ void CLIUI::showSystemInfo() {
     pause();
 }
 
-void CLIUI::additionMenu() {
-    clearScreen();
-    printHeader("СЛОЖЕНИЕ");
-
-    std::string a = inputNumber("Введите первое число: ");
-    if (a.empty()) { pause(); return; }
-
-    std::string b = inputNumber("Введите второе число: ");
-    if (b.empty()) { pause(); return; }
-
-    OperationResult result = ops->add(a, b);
-    ops->printResult("+", a, b, result);
-
-    pause();
-}
-
-void CLIUI::subtractionMenu() {
-    clearScreen();
-    printHeader("ВЫЧИТАНИЕ");
-
-    std::string a = inputNumber("Введите уменьшаемое: ");
-    if (a.empty()) { pause(); return; }
-
-    std::string b = inputNumber("Введите вычитаемое: ");
-    if (b.empty()) { pause(); return; }
-
-    OperationResult result = ops->subtract(a, b);
-    ops->printResult("-", a, b, result);
-
-    pause();
-}
-
-void CLIUI::multiplicationMenu() {
-    clearScreen();
-    printHeader("УМНОЖЕНИЕ");
-
-    std::string a = inputNumber("Введите первый множитель: ");
-    if (a.empty()) { pause(); return; }
-
-    std::string b = inputNumber("Введите второй множитель: ");
-    if (b.empty()) { pause(); return; }
-
-    OperationResult result = ops->multiply(a, b);
-    ops->printResult("*", a, b, result);
-
-    pause();
-}
-
-void CLIUI::divisionMenu() {
-    clearScreen();
-    printHeader("ДЕЛЕНИЕ С ОСТАТКОМ");
-
-    std::string a = inputNumber("Введите делимое: ");
-    if (a.empty()) { pause(); return; }
-
-    std::string b = inputNumber("Введите делитель: ");
-    if (b.empty()) { pause(); return; }
-
-    DivisionResult result = ops->divide(a, b);
-    ops->printDivisionResult(a, b, result);
-
-    pause();
-}
+// ==================== ПАРСЕР ВЫРАЖЕНИЙ ====================
 
 void CLIUI::skipSpaces(const std::string& expr, size_t& pos) {
     while (pos < expr.length() && expr[pos] == ' ') {
@@ -185,6 +88,9 @@ void CLIUI::skipSpaces(const std::string& expr, size_t& pos) {
 }
 
 std::string CLIUI::resultToString(const OperationResult& res) {
+    if (res.isOverflow) {
+        throw std::runtime_error("ПЕРЕПОЛНЕНИЕ");
+    }
     return (res.isNegative ? "-" : "") + res.value;
 }
 
@@ -193,13 +99,11 @@ std::string CLIUI::parseNumber(const std::string& expr, size_t& pos) {
     
     std::string num;
     
-    // Проверяем унарный минус
     if (pos < expr.length() && expr[pos] == '-') {
         num += '-';
         ++pos;
     }
     
-    // Читаем символы алфавита
     while (pos < expr.length() && ops->isValidChar(expr[pos])) {
         num += expr[pos];
         ++pos;
@@ -212,14 +116,11 @@ std::string CLIUI::parseNumber(const std::string& expr, size_t& pos) {
     return ops->normalize(num);
 }
 
-// Парсит фактор: число или выражение в скобках
 std::string CLIUI::parseFactor(const std::string& expr, size_t& pos) {
     skipSpaces(expr, pos);
     
-    // Унарный минус перед скобкой
     bool negate = false;
     if (pos < expr.length() && expr[pos] == '-') {
-        // Проверяем, не число ли это
         size_t nextPos = pos + 1;
         skipSpaces(expr, nextPos);
         if (nextPos < expr.length() && expr[nextPos] == '(') {
@@ -232,13 +133,13 @@ std::string CLIUI::parseFactor(const std::string& expr, size_t& pos) {
     std::string result;
     
     if (pos < expr.length() && expr[pos] == '(') {
-        ++pos; // пропускаем '('
+        ++pos;
         result = parseExpression(expr, pos);
         skipSpaces(expr, pos);
         if (pos >= expr.length() || expr[pos] != ')') {
             throw std::runtime_error("Ожидалась закрывающая скобка ')'");
         }
-        ++pos; // пропускаем ')'
+        ++pos;
     } else {
         result = parseNumber(expr, pos);
     }
@@ -250,7 +151,6 @@ std::string CLIUI::parseFactor(const std::string& expr, size_t& pos) {
     return result;
 }
 
-// Парсит терм: факторы, соединённые * или /
 std::string CLIUI::parseTerm(const std::string& expr, size_t& pos) {
     std::string left = parseFactor(expr, pos);
     
@@ -262,7 +162,7 @@ std::string CLIUI::parseTerm(const std::string& expr, size_t& pos) {
         char op = expr[pos];
         if (op != '*' && op != '/') break;
         
-        ++pos; // пропускаем оператор
+        ++pos;
         std::string right = parseFactor(expr, pos);
         
         if (op == '*') {
@@ -270,10 +170,13 @@ std::string CLIUI::parseTerm(const std::string& expr, size_t& pos) {
             left = resultToString(res);
         } else {
             DivisionResult res = ops->divide(left, right);
-            if (res.isDivByZero || res.isZeroByZero) {
-                throw std::runtime_error("Деление на ноль");
+            if (res.isDivByZero) {
+                throw std::runtime_error("Пустое множество");
             }
-            // Выводим остаток, если он есть
+            if (res.isZeroByZero) {
+                throw std::runtime_error("Неопределённость: результат - любое число от " 
+                    + ops->getMaxNegative() + " до " + ops->getMaxPositive());
+            }
             if (!ops->isZeroNumber(res.remainder)) {
                 std::cout << "  (остаток: " << res.remainder << ")\n";
             }
@@ -284,20 +187,8 @@ std::string CLIUI::parseTerm(const std::string& expr, size_t& pos) {
     return left;
 }
 
-// Парсит выражение: термы, соединённые + или -
 std::string CLIUI::parseExpression(const std::string& expr, size_t& pos) {
     skipSpaces(expr, pos);
-    
-    // Обработка унарного минуса в начале выражения
-    bool negateFirst = false;
-    if (pos < expr.length() && expr[pos] == '-') {
-        size_t nextPos = pos + 1;
-        skipSpaces(expr, nextPos);
-        // Если после минуса идёт скобка, это унарный минус
-        if (nextPos < expr.length() && expr[nextPos] == '(') {
-            negateFirst = false; // обработается в parseFactor
-        }
-    }
     
     std::string left = parseTerm(expr, pos);
     
@@ -309,7 +200,7 @@ std::string CLIUI::parseExpression(const std::string& expr, size_t& pos) {
         char op = expr[pos];
         if (op != '+' && op != '-') break;
         
-        ++pos; // пропускаем оператор
+        ++pos;
         std::string right = parseTerm(expr, pos);
         
         if (op == '+') {
@@ -335,7 +226,6 @@ void CLIUI::calculatorMode() {
 
     printSeparator();
 
-    // Очищаем буфер ввода
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     while (true) {
@@ -344,7 +234,6 @@ void CLIUI::calculatorMode() {
         std::string input;
         std::getline(std::cin, input);
 
-        // Убираем пробелы в начале и конце
         while (!input.empty() && input[0] == ' ') input = input.substr(1);
         while (!input.empty() && input.back() == ' ') input.pop_back();
 
@@ -366,7 +255,7 @@ void CLIUI::calculatorMode() {
             std::cout << "  = " << result << "\n";
             
         } catch (const std::exception& e) {
-            std::cout << "  Ошибка: " << e.what() << "\n";
+            std::cout << e.what() << "\n";
         }
     }
 }

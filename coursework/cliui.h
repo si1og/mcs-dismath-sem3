@@ -14,13 +14,7 @@ private:
     void printHeader(const std::string& title);
     void printSeparator();
 
-    std::string inputNumber(const std::string& prompt);
-
     void showMainMenu();
-    void additionMenu();
-    void subtractionMenu();
-    void multiplicationMenu();
-    void divisionMenu();
     void showSystemInfo();
     void calculatorMode();
     

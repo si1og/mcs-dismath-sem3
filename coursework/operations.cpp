@@ -411,7 +411,7 @@ DivisionResult Operations::divide(const std::string& a, const std::string& b) co
     }
 
     // -a / b с остатком
-    if (negA && !negB && !isZeroNumber(remainder)) {
+    if (negA && !negB && !isZeroNumber(remainder) || !negA && negB && !isZeroNumber(remainder)) {
         quotient = increment(quotient);
         remainder = subtractPositive(absB, remainder);
     }
