@@ -11,9 +11,6 @@ endif()
 
 add_executable(main
     main.cpp
-    universe.cpp
-    multiset.cpp
-    cliui.cpp
 )
 
 target_include_directories(main PRIVATE
