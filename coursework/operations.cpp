@@ -74,7 +74,6 @@ bool Operations::isValidNumber(const std::string& num) const {
 }
 
 int Operations::compareAbs(const std::string& a, const std::string& b) const {
-    // нормализуем по модулю
     std::string normA = trimLeadingZeros(abs(a));
     std::string normB = trimLeadingZeros(abs(b));
 
@@ -95,12 +94,6 @@ int Operations::compareAbs(const std::string& a, const std::string& b) const {
             if (cur == cb) posB = j;
             cur = next(cur);
         }
-
-        // выше запоминаем последние позиции, которые совпали с cur:
-        // cur двигается по цепочке a -> ...
-        //
-        // => у кого позиция больше, тот больше
-
         return posA > posB ? 1 : -1;
     }
 
@@ -116,17 +109,11 @@ std::string Operations::getMaxNegative() const {
     return "-" + getMaxPositive();
 }
 
-// «база», на которой строим сложение
 std::string Operations::increment(const std::string& num) const {
     if (num.empty()) return std::string(1, getOne());
 
     std::string result = num;
 
-    // берем последнюю цифру:
-    // 1) берем след. цифру по цепочке от последней цифры (п. a -> b)
-    // 2) записываем обновленную цифру в result на позицию последней цифры
-    // а) если обновлённая цифра 0 - повторяем для предпоследней цифры ... и т.д.
-    // б) если не 0 - возвращаем result
     for (int i = static_cast<int>(result.length()) - 1; i >= 0; --i) {
         char nextChar = next(result[i]);
         result[i] = nextChar;
@@ -136,12 +123,10 @@ std::string Operations::increment(const std::string& num) const {
         }
     }
 
-    // если все цифры в результате операции 0, возвращаем 1 + нули
     return std::string(1, getOne()) + result;
 }
 
 
-// ан-но, как с increment, но с prev
 std::string Operations::decrement(const std::string& num) const {
     if (isZeroNumber(num)) {
         return "-" + std::string(1, getOne());
@@ -165,7 +150,7 @@ std::string Operations::addPositive(const std::string& a, const std::string& b) 
     std::string numB = trimLeadingZeros(b);
 
     size_t maxLen = std::max(numA.length(), numB.length());
-    while (numA.length() < maxLen) numA = std::string(1, getZero()) + numA; 
+    while (numA.length() < maxLen) numA = std::string(1, getZero()) + numA;
     while (numB.length() < maxLen) numB = std::string(1, getZero()) + numB;
 
     std::string result(maxLen, getZero());
@@ -223,7 +208,7 @@ std::string Operations::subtractPositive(const std::string& a, const std::string
         char counter = numB[i];
         while (counter != getZero()) {
             if (diff == getZero()) {
-                newBorrow = next(newBorrow);  
+                newBorrow = next(newBorrow);
                 diff = prev(getZero());
             } else {
                 diff = prev(diff);
@@ -411,7 +396,7 @@ DivisionResult Operations::divide(const std::string& a, const std::string& b) co
     }
 
     // -a / b с остатком
-    if (negA && !negB && !isZeroNumber(remainder) 
+    if (negA && !negB && !isZeroNumber(remainder)
         || !negA && negB && !isZeroNumber(remainder)) {
         quotient = increment(quotient);
         remainder = subtractPositive(absB, remainder);
