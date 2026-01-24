@@ -1,6 +1,3 @@
-#ifndef CLI_UI_H
-#define CLI_UI_H
-
 #include <iostream>
 #include <string>
 
@@ -32,5 +29,3 @@ protected:
 public:
     virtual ~CliUI() = default;
 };
-
-#endif

@@ -1,6 +1,3 @@
-#ifndef BDD_H
-#define BDD_H
-
 #include "zhegalkin.h"
 
 struct BDDNode {
@@ -95,5 +92,3 @@ public:
         std::cout << ") = " << nodes[current].value << "\n";
     }
 };
-
-#endif

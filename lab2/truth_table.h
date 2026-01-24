@@ -1,6 +1,3 @@
-#ifndef TRUTH_TABLE_H
-#define TRUTH_TABLE_H
-
 #include "cli_ui.h"
 #include <vector>
 #include <string>
@@ -105,5 +102,3 @@ public:
     int getNumVars() const { return numVars; }
     const std::vector<int>& getValues() const { return values; }
 };
-
-#endif

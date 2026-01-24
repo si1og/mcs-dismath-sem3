@@ -1,6 +1,3 @@
-#ifndef ZHEGALKIN_H
-#define ZHEGALKIN_H
-
 #include "truth_table.h"
 
 class ZhegalkinPolynomial : public TruthTable {
@@ -96,5 +93,3 @@ public:
         std::cout << ") = " << result << "\n";
     }
 };
-
-#endif
